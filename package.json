@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/thuhuong1234/expense_management_api#readme",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.19.2"
   }
 }
