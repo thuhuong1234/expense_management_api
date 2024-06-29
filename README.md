@@ -8,7 +8,19 @@
 npm install
 ```
 
-- start server:`localhost:3000`
+- setup env:
+
+```bash
+cp .env.template .env
+```
+
+- start server dev:`localhost:3000`
+
+```bash
+npm run start:dev
+```
+
+- start server production:
 
 ```bash
 npm run start
