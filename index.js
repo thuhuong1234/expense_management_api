@@ -1,4 +1,6 @@
 require("dotenv").config();
+const errorHandler = require("./src/middlewares/error.middleware");
+
 var morgan = require("morgan");
 
 const express = require("express");
@@ -6,9 +8,10 @@ const app = express();
 
 app.use(morgan("dev"));
 
-app.get("/", function (req, res) {
-  res.send("Hello World");
-});
 const port = process.env.PORT || 3000;
 
-app.listen(port);
+app.use(errorHandler);
+
+app.listen(port, () => {
+  console.log(`Server run with port: ${port}`);
+});
