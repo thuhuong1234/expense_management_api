@@ -1,5 +1,9 @@
 const prisma = require("../prisma");
 
+const getAllCategories = () => {
+  const categories = prisma.category.findMany();
+  return categories;
+};
 const createCategory = (data) => {
   const category = prisma.category.create({
     data,
@@ -36,6 +40,7 @@ const deleteCategory = (id) => {
 };
 
 module.exports = {
+  getAllCategories,
   createCategory,
   getCategory,
   updateCategory,

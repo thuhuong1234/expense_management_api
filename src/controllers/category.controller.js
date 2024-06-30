@@ -2,6 +2,11 @@ const categoryService = require("../services/category.service");
 const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/AppError");
 
+const getAllCategories = catchAsyncError(async (req, res, next) => {
+  const categories = await categoryService.getAllCategories();
+  return res.status(201).json(categories);
+});
+
 const createCategory = catchAsyncError(async (req, res, next) => {
   const { name } = req.body;
   const newCategory = await categoryService.createCategory(req.body);
@@ -43,6 +48,7 @@ const deleteCategory = catchAsyncError(async (req, res, next) => {
 });
 
 module.exports = {
+  getAllCategories,
   createCategory,
   getCategory,
   updateCategory,
