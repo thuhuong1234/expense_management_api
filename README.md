@@ -25,3 +25,9 @@ npm run start:dev
 ```bash
 npm run start
 ```
+
+- run database migration:
+
+```bash
+npx prisma migrate dev
+```
