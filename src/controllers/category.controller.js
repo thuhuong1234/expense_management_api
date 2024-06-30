@@ -1,6 +1,6 @@
 const categoryService = require("../services/category.service");
 const catchAsyncError = require("../utils/catchAsyncError");
-
+const AppError = require("../utils/AppError");
 const createCategory = catchAsyncError(async (req, res, next) => {
   const { name } = req.body;
   const newCategory = await categoryService.createCategory(req.body);
@@ -8,4 +8,17 @@ const createCategory = catchAsyncError(async (req, res, next) => {
   return res.status(201).json(newCategory);
 });
 
-module.exports = { createCategory };
+const getCategory = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const category = await categoryService.getCategory(id);
+  if (!category) {
+    return next(new AppError("Category not found", 404));
+  }
+
+  return res.status(201).json(category);
+});
+
+module.exports = {
+  createCategory,
+  getCategory,
+};

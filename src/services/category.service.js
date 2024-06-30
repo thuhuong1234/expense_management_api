@@ -7,6 +7,15 @@ const createCategory = (data) => {
   return category;
 };
 
+const getCategory = (id) => {
+  const category = prisma.category.findUnique({
+    where: {
+      id: Number(id),
+    },
+  });
+  return category;
+};
 module.exports = {
   createCategory,
+  getCategory,
 };
