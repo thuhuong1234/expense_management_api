@@ -15,7 +15,18 @@ const getCategory = (id) => {
   });
   return category;
 };
+
+const updateCategory = (id, data) => {
+  const category = prisma.category.update({
+    where: {
+      id: Number(id),
+    },
+    data,
+  });
+  return category;
+};
 module.exports = {
   createCategory,
   getCategory,
+  updateCategory,
 };
