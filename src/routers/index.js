@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const categoryRouter = require("./category.router");
 const todoRouter = require("./todo.router");
+const userRouter = require("./user.router");
+
 const routes = [
   {
     path: "/categories",
@@ -10,6 +12,10 @@ const routes = [
   {
     path: "/todos",
     route: todoRouter,
+  },
+  {
+    path: "/users",
+    route: userRouter,
   },
 ];
 
