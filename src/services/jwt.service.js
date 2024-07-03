@@ -6,4 +6,8 @@ const accessToken = (payload) => {
 
   return token;
 };
-module.exports = { accessToken };
+
+const verifyToken = (token) => {
+  return jwt.verify(token, process.env.JWT_SECRET);
+};
+module.exports = { accessToken, verifyToken };

@@ -16,5 +16,13 @@ const login = catchAsyncError(async (req, res, next) => {
     token,
   });
 });
+const getUser = catchAsyncError(async (req, res, next) => {
+  const { id } = req.user;
+  const user = await authService.getUser(id);
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+  return res.status(201).json(user);
+});
 
-module.exports = { login };
+module.exports = { login, getUser };

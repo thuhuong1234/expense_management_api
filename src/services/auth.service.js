@@ -13,6 +13,14 @@ const login = async (email, password) => {
 
   return user;
 };
+const getUser = async (id) => {
+  const user = await prima.user.findUnique({ where: { id } });
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+  return user;
+};
 module.exports = {
   login,
+  getUser,
 };
