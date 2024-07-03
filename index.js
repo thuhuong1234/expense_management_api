@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const router = require("./src/routers/index");
 const errorHandler = require("./src/middlewares/error.middleware");
 const validatorHandler = require("./src/middlewares/validator.middleware");
@@ -13,6 +14,8 @@ const port = process.env.PORT || 3000;
 app.use(morgan("dev"));
 
 app.use(validatorHandler);
+
+app.use(cors());
 
 app.use("/api/v1", router);
 
