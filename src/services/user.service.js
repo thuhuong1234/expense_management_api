@@ -18,6 +18,7 @@ const getUser = (id) => {
       },
     },
   });
+
   return user;
 };
 
