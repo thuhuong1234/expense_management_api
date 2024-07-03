@@ -7,7 +7,17 @@ const createUser = (data) => {
   return user;
 };
 const getUser = (id) => {
-  const user = prisma.user.findUnique({ where: { id } });
+  const user = prisma.user.findUnique({
+    where: { id },
+    include: {
+      todos: {
+        select: {
+          name: true,
+          amountOfMoney: true,
+        },
+      },
+    },
+  });
   return user;
 };
 
