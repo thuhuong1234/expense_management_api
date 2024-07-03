@@ -28,8 +28,9 @@ model Category {
   createdAt    DateTime     @default(now()) @map("create_at")
   updatedAt    DateTime     @default(now()) @map("update_at")
   categoryType CategoryType @default(Expense) @map("category_type")
+  
   todos        Todo[]
-
+  
   @@map("categories")
 }
 
