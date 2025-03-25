@@ -7,7 +7,9 @@ module.exports = {
     password: Joi.string()
       .min(8)
       .max(16)
+      .required()
       .pattern(new RegExp("^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])")),
+    phone: Joi.string().min(10).max(10).required(),
   }),
 
   [UPDATE_USER_API_KEY]: Joi.object({

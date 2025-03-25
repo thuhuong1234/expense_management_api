@@ -1,13 +1,12 @@
 const prisma = require("../prisma");
 const bcryptService = require("../services/bcrypt");
 const createUser = (data) => {
-  const user = prisma.user.create({
+  return (user = prisma.user.create({
     data,
-  });
-  return user;
+  }));
 };
 const getUser = (id) => {
-  const user = prisma.user.findUnique({
+  return (user = prisma.user.findUnique({
     where: { id },
     include: {
       todos: {
@@ -17,26 +16,21 @@ const getUser = (id) => {
         },
       },
     },
-  });
-
-  return user;
+  }));
 };
 
 const getAllUsers = () => {
-  const users = prisma.user.findMany();
-  return users;
+  return (users = prisma.user.findMany());
 };
 const updateUser = async (id, data) => {
   if (data.password) {
     data.password = await bcryptService.hashPassword(data.password);
   }
-  const user = prisma.user.update({ where: { id }, data });
-  return user;
+  return (user = prisma.user.update({ where: { id }, data }));
 };
 
 const deleteUser = (id) => {
-  const user = prisma.user.delete({ where: { id } });
-  return user;
+  return (user = prisma.user.delete({ where: { id } }));
 };
 
 module.exports = {

@@ -8,16 +8,18 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  isAdmin   Boolean  @default(false)
-  email     String   @unique @db.VarChar(45)
-  name      String?  @db.VarChar(45)
-  password  String   @db.VarChar(255)
-  avatar    String?  @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("create_at")
-  updatedAt DateTime @default(now()) @map("update_at")
-
-  todos Todo[]
+  id            Int      @id @default(autoincrement())
+  isAdmin       Boolean  @default(false) @map("is_admin")
+  email         String   @unique @db.VarChar(45)
+  name          String?  @db.VarChar(45)
+  password      String   @db.VarChar(255)
+  avatar        String?  @db.VarChar(255)
+  phone         String   @unique @default("") @db.Char(45)
+  rememberToken String?  @map("remember_token") @db.VarChar(45)
+  createdAt     DateTime @default(now()) @map("create_at")
+  updatedAt     DateTime @default(now()) @map("update_at")
+  gender        Genders? @default(Undefined)
+  todos         Todo[]
 
   @@map("users")
 }
@@ -28,9 +30,9 @@ model Category {
   createdAt    DateTime     @default(now()) @map("create_at")
   updatedAt    DateTime     @default(now()) @map("update_at")
   categoryType CategoryType @default(Expense) @map("category_type")
-  
-  todos        Todo[]
-  
+
+  todos Todo[]
+
   @@map("categories")
 }
 
@@ -52,4 +54,10 @@ model Todo {
 enum CategoryType {
   Expense
   Income
+}
+
+enum Genders {
+  Male
+  Female
+  Undefined
 }

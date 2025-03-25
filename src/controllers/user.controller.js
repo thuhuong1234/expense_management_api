@@ -10,6 +10,7 @@ const createUser = catchAsyncError(async (req, res, next) => {
     ...req.body,
     password: hashedPassword,
   });
+
   return res.status(201).json(newUser);
 });
 
