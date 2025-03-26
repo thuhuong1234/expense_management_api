@@ -1,8 +1,8 @@
-const prima = require("../prisma");
+const prisma = require("../prisma");
 const bcryptService = require("../services/bcrypt");
 const AppError = require("../utils/AppError");
 const login = async (email, password) => {
-  const user = await prima.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     throw new AppError("Email not found", 404);
   }
@@ -14,7 +14,7 @@ const login = async (email, password) => {
   return user;
 };
 const getUser = async (id) => {
-  const user = await prima.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
     throw new AppError("User not found", 404);
   }

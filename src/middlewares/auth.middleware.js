@@ -7,8 +7,7 @@ const authMiddleware = catchAsyncError(async (req, res, next) => {
   if (!token) {
     return next(new AppError("Unauthorized", 401));
   }
-
-  const user = await jwtService.verifyToken(token);
+  const user = jwtService.verifyToken(token);
   if (!user) {
     return next(new AppError("Unauthorized", 401));
   }

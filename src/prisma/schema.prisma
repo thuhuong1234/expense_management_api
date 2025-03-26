@@ -15,11 +15,12 @@ model User {
   password      String   @db.VarChar(255)
   avatar        String?  @db.VarChar(255)
   phone         String   @unique @default("") @db.Char(45)
-  rememberToken String?  @map("remember_token") @db.VarChar(45)
+  rememberToken Boolean? @default(false) @map("remember_token")
   createdAt     DateTime @default(now()) @map("create_at")
   updatedAt     DateTime @default(now()) @map("update_at")
   gender        Genders? @default(Undefined)
   todos         Todo[]
+  tokens        Token[]
 
   @@map("users")
 }
@@ -49,6 +50,17 @@ model Todo {
   categoryId Int?      @map("category_id")
 
   @@map("todos")
+}
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @db.Text
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tokens")
 }
 
 enum CategoryType {
