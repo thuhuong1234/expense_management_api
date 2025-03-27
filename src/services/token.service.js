@@ -1,5 +1,5 @@
 const prisma = require("../prisma");
-const createToken = async (user, refreshToken) => {
+const saveRefreshToken = async (user, refreshToken) => {
   const token = await prisma.token.create({
     data: {
       userId: user.id,
@@ -9,4 +9,4 @@ const createToken = async (user, refreshToken) => {
   });
   return token;
 };
-module.exports = { createToken };
+module.exports = { saveRefreshToken };

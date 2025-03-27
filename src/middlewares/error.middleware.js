@@ -3,8 +3,16 @@ const errorHandler = (err, req, res, next) => {
     err.statusCode = 400;
     err.message = ` ${err.meta.target.split("_").join(" ")} already exists`;
   }
-  const statusCode = err.status || 500;
+  if (err.code === "P2025" && err.meta?.target) {
+    err.statusCode = 400;
+    err.message = ` ${err.meta.target.split("_").join(" ")} not found`;
+  } else if (err.code === "P2025") {
+    err.statusCode = 400;
+    err.message = `Record not found`;
+  }
+  const statusCode = err.statusCode || 500;
   const message = err.message || "Internal server error";
+
   res.status(statusCode).json({ message });
 };
 
