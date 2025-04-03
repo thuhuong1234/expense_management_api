@@ -16,11 +16,16 @@ model User {
   avatar        String?  @db.VarChar(255)
   phone         String   @unique @default("") @db.Char(45)
   rememberToken Boolean? @default(false) @map("remember_token")
-  createdAt     DateTime @default(now()) @map("create_at")
-  updatedAt     DateTime @default(now()) @map("update_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at")
   gender        Genders? @default(Undefined)
-  todos         Todo[]
-  tokens        Token[]
+
+  tokens           Token[]
+  transactions     Transaction[]
+  categories       Category[]
+  rooms            Room[]
+  userRooms        UserRoom[]        @relation("UserRooms_User")
+  userTransactions UserTransaction[]
 
   @@map("users")
 }
@@ -28,48 +33,104 @@ model User {
 model Category {
   id           Int          @id @default(autoincrement())
   name         String       @db.VarChar(45)
-  createdAt    DateTime     @default(now()) @map("create_at")
-  updatedAt    DateTime     @default(now()) @map("update_at")
-  categoryType CategoryType @default(Expense) @map("category_type")
+  avatarUrl    String?      @db.VarChar(255)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @default(now()) @map("updated_at")
+  categoryType CategoryType @default(Undefined) @map("category_type")
+  userId       Int?         @map("created_by")
+  user         User?        @relation(fields: [userId], references: [id])
 
-  todos Todo[]
+  transactions Transaction[]
 
   @@map("categories")
 }
 
-model Todo {
-  id            Int      @id @default(autoincrement())
-  name          String   @db.VarChar(45)
-  amountOfMoney Decimal  @map("amount_of_money") @db.Decimal(15, 2)
-  createdAt     DateTime @default(now()) @map("create_at")
-  updatedAt     DateTime @default(now()) @map("update_at")
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  description String    @db.VarChar(45)
+  amount      Decimal   @db.Decimal(15, 2)
+  date        DateTime  @default(now())
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  userId      Int       @map("created_by")
+  roomId      Int?      @map("room_id")
+  categoryId  Int       @map("category_id")
+  room        Room?     @relation(fields: [roomId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  category    Category? @relation(fields: [categoryId], references: [id])
 
-  user       User?     @relation(fields: [userId], references: [id])
-  userId     Int?      @map("user_id")
-  category   Category? @relation(fields: [categoryId], references: [id])
-  categoryId Int?      @map("category_id")
+  userTransaction UserTransaction[]
 
-  @@map("todos")
+  @@map("transactions")
 }
 
 model Token {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
-  token     String?   @db.Text
+  token     String?  @db.Text
   expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("tokens")
 }
 
+model Room {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(45)
+  quality   Int?     @db.Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  userId    Int?     @map("created_by")
+  user      User?    @relation(fields: [userId], references: [id])
+
+  transactions     Transaction[]
+  userRooms        UserRoom[]
+  userTransactions UserTransaction[]
+
+  @@map("rooms")
+}
+
+model UserRoom {
+  id       Int      @id @default(autoincrement())
+  userId   Int      @map("user_id")
+  roomId   Int      @map("room_id")
+  role     Role     @default(Member)
+  joinedAt DateTime @default(now())
+  user     User     @relation("UserRooms_User", fields: [userId], references: [id], onDelete: Cascade)
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+  @@map("user_rooms")
+}
+
+model UserTransaction {
+  id            Int         @id @default(autoincrement())
+  userId        Int         @map("user_id")
+  transactionId Int         @map("transaction_id")
+  roomId        Int?        @map("room_id")
+  amount        Decimal     @db.Decimal(15, 2)
+  dueDate       DateTime?
+  user          User        @relation(fields: [userId], references: [id])
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  room          Room?       @relation(fields: [roomId], references: [id])
+
+  @@map("user_transactions")
+}
+
 enum CategoryType {
   Expense
   Income
+  Undefined
 }
 
 enum Genders {
   Male
   Female
   Undefined
+}
+
+enum Role {
+  Leader
+  Subleader
+  Member
 }

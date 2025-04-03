@@ -8,7 +8,7 @@ const categoryController = require("../controllers/category.controller");
 
 categoryRouter.route("/").get(categoryController.getAllCategories);
 
-categoryRouter.use(authMiddleware, roleMiddleware(true));
+categoryRouter.use(authMiddleware);
 
 categoryRouter.route("/").post(categoryController.createCategory);
 categoryRouter.route("/:id").get(categoryController.getCategory);

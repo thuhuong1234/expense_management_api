@@ -4,9 +4,12 @@ const getAllCategories = () => {
   const categories = prisma.category.findMany();
   return categories;
 };
-const createCategory = (data) => {
+const createCategory = (data, userId) => {
   const category = prisma.category.create({
-    data,
+    data: {
+      ...data,
+      userId,
+    },
   });
   return category;
 };
@@ -20,12 +23,15 @@ const getCategory = (id) => {
   return category;
 };
 
-const updateCategory = (id, data) => {
+const updateCategory = (id, data, userId) => {
   const category = prisma.category.update({
     where: {
       id: Number(id),
     },
-    data,
+    data: {
+      ...data,
+      userId,
+    },
   });
   return category;
 };
