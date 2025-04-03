@@ -4,6 +4,7 @@ const categoryRouter = require("./category.router");
 const todoRouter = require("./todo.router");
 const userRouter = require("./user.router");
 const authRouter = require("./auth.router");
+const roomRouter = require("./room.router");
 
 const routes = [
   {
@@ -21,6 +22,10 @@ const routes = [
   {
     path: "/auth",
     route: authRouter,
+  },
+  {
+    path: "/rooms",
+    route: roomRouter,
   },
 ];
 

@@ -77,7 +77,7 @@ model Token {
 model Room {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(45)
-  quality   Int?     @db.Int
+  quality   Int?     @default(0) @db.Int
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
   userId    Int?     @map("created_by")
@@ -96,6 +96,7 @@ model UserRoom {
   roomId   Int      @map("room_id")
   role     Role     @default(Member)
   joinedAt DateTime @default(now())
+  isLeader Boolean  @default(false)
   user     User     @relation("UserRooms_User", fields: [userId], references: [id], onDelete: Cascade)
   room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
@@ -131,6 +132,5 @@ enum Genders {
 
 enum Role {
   Leader
-  Subleader
   Member
 }

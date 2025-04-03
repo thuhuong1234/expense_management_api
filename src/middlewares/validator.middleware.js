@@ -13,6 +13,7 @@ const validationHandler = (req, res, next) => {
   }
   if (validationSchema) {
     const { error } = validationSchema.validate(req.body);
+
     if (error) {
       return res
         .status(400)

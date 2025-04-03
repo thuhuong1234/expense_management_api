@@ -4,6 +4,8 @@ const {
   UPDATE_USER_API_KEY,
   CREATE_CATEGORY_API_KEY,
   UPDATE_CATEGORY_API_KEY,
+  CREATE_ROOM_API_KEY,
+  UPDATE_ROOM_API_KEY,
 } = require("../constants");
 module.exports = {
   [CREATE_USER_API_KEY]: Joi.object({
@@ -44,5 +46,15 @@ module.exports = {
       .optional(),
     userId: Joi.number().optional(),
     avatarUrl: Joi.string().optional(),
+  }),
+  [CREATE_ROOM_API_KEY]: Joi.object({
+    name: Joi.string().min(3).max(45).required(),
+    quality: Joi.number().integer().default(0).optional(),
+    userId: Joi.number().optional(),
+  }),
+  [UPDATE_ROOM_API_KEY]: Joi.object({
+    name: Joi.string().min(3).max(45).optional(),
+    quality: Joi.number().integer().optional(),
+    userId: Joi.number().optional(),
   }),
 };
