@@ -45,7 +45,7 @@ const getRoom = async (roomId) => {
 const updateRoom = async (roomId, updateData) => {
   const updatedRoom = await prisma.room.update({
     where: { id: Number(roomId) },
-    data: { updateData },
+    data: updateData,
   });
 
   return updatedRoom;
