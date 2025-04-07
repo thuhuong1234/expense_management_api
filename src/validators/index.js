@@ -6,7 +6,10 @@ const {
   UPDATE_CATEGORY_API_KEY,
   CREATE_ROOM_API_KEY,
   UPDATE_ROOM_API_KEY,
+  CREATE_TRANSACTION_API_KEY,
+  UPDATE_TRANSACTION_API_KEY,
 } = require("../constants");
+const { join } = require("@prisma/client/runtime/library");
 module.exports = {
   [CREATE_USER_API_KEY]: Joi.object({
     name: Joi.string().min(3).max(55).required(),
@@ -56,5 +59,21 @@ module.exports = {
     name: Joi.string().min(3).max(45).optional(),
     quality: Joi.number().integer().optional(),
     userId: Joi.number().optional(),
+  }),
+  [CREATE_TRANSACTION_API_KEY]: Joi.object({
+    description: Joi.string().required(),
+    amount: Joi.number().required(),
+    categoryId: Joi.number().required(),
+    roomId: Joi.number().required(),
+    userTransactions: Joi.array().items(Joi.number()).required(),
+    dueDate: Joi.date().optional(),
+  }),
+  [UPDATE_TRANSACTION_API_KEY]: Joi.object({
+    description: Joi.string().optional(),
+    amount: Joi.number().optional(),
+    categoryId: Joi.number().optional(),
+    roomId: Joi.number().optional(),
+    userTransactions: Joi.array().items(Joi.number()).optional(),
+    dueDate: Joi.date().optional(),
   }),
 };

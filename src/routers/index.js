@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const categoryRouter = require("./category.router");
-const todoRouter = require("./todo.router");
+const transactionRouter = require("./transaction.router");
 const userRouter = require("./user.router");
 const authRouter = require("./auth.router");
 const roomRouter = require("./room.router");
@@ -12,8 +12,8 @@ const routes = [
     route: categoryRouter,
   },
   {
-    path: "/todos",
-    route: todoRouter,
+    path: "/transactions",
+    route: transactionRouter,
   },
   {
     path: "/users",
