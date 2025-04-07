@@ -5,18 +5,17 @@ const createUser = (data) => {
     data,
   }));
 };
-const getUser = (id) => {
-  return (user = prisma.user.findUnique({
+const getUser = async (id) => {
+  return await prisma.user.findUnique({
     where: { id },
     include: {
-      todos: {
-        select: {
-          name: true,
-          amountOfMoney: true,
+      userTransactions: {
+        include: {
+          transaction: true,
         },
       },
     },
-  }));
+  });
 };
 
 const getAllUsers = () => {
@@ -29,8 +28,8 @@ const updateUser = async (id, data) => {
   return (user = prisma.user.update({ where: { id }, data }));
 };
 
-const deleteUser = (id) => {
-  return (user = prisma.user.delete({ where: { id } }));
+const deleteUser = async (id) => {
+  return await prisma.user.delete({ where: { id } });
 };
 
 module.exports = {
