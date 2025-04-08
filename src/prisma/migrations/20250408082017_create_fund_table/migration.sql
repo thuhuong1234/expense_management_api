@@ -13,7 +13,7 @@ ALTER TABLE `transactions` ADD COLUMN `fund_id` INTEGER NULL;
 -- CreateTable
 CREATE TABLE `funds` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(100) NOT NULL,
+    `name` VARCHAR(100) NULL,
     `description` TEXT NULL,
     `user_id` INTEGER NULL,
     `room_id` INTEGER NULL,

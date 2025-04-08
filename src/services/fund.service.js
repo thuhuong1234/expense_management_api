@@ -1,17 +1,43 @@
 const prisma = require("../prisma");
+const AppError = require("../utils/appError");
+const createFund = async (userId, data) => {
+  const { name, roomId, description, balance } = data;
+  let existingFund;
+  if (roomId) {
+    existingFund = await prisma.fund.findFirst({
+      where: { roomId },
+    });
 
-const createFund = async (data) => {
-  const { name, userId, roomId, description } = data;
-  const existingFund = await prisma.fund.findFirst({
+    if (existingFund) {
+      throw new AppError("Room already has a fund", 400);
+    }
+
+    return await prisma.fund.create({
+      data: {
+        name: name || `Quỹ phòng #${roomId}`,
+        description,
+        roomId,
+        userId,
+        balance,
+      },
+    });
+  }
+  const existingUserFund = await prisma.fund.findFirst({
     where: {
-      OR: [{ userId: userId || undefined }, { roomId: roomId || undefined }],
+      userId,
+      roomId: null,
     },
   });
-  if (existingFund) {
-    throw new Error("Fund already exists");
+  if (existingUserFund) {
+    throw new AppError("You already have a personal fund", 400);
   }
 
-  return await prisma.fund.create({ data });
+  return await prisma.fund.create({
+    data: {
+      name: name || `Quỹ cá nhân của bạn`,
+      description,
+      userId,
+    },
+  });
 };
-//nạp tiền, validate, controller,
 module.exports = { createFund };

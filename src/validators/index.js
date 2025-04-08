@@ -79,5 +79,8 @@ module.exports = {
   }),
   [CREATE_FUND_API_KEY]: Joi.object({
     balance: Joi.number().required(),
+    name: Joi.string().required().optional(),
+    userId: Joi.number().optional(),
+    roomId: Joi.number().optional(),
   }),
 };
