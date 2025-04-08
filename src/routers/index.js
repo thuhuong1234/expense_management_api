@@ -5,7 +5,7 @@ const transactionRouter = require("./transaction.router");
 const userRouter = require("./user.router");
 const authRouter = require("./auth.router");
 const roomRouter = require("./room.router");
-
+const fundRouter = require("./fund.router");
 const routes = [
   {
     path: "/categories",
@@ -26,6 +26,10 @@ const routes = [
   {
     path: "/rooms",
     route: roomRouter,
+  },
+  {
+    path: "/funds",
+    route: fundRouter,
   },
 ];
 

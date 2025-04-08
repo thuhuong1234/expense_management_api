@@ -6,6 +6,7 @@ const CREATE_ROOM_API_KEY = "^POST_/api/v1/rooms$";
 const UPDATE_ROOM_API_KEY = "^PATCH_/api/v1/rooms/[0-9]+$";
 const CREATE_TRANSACTION_API_KEY = "^POST_/api/v1/transactions$";
 const UPDATE_TRANSACTION_API_KEY = "^PATCH_/api/v1/transactions/[0-9]+$";
+const CREATE_FUND_API_KEY = "^POST_/api/v1/funds$";
 
 module.exports = {
   CREATE_USER_API_KEY,
@@ -16,4 +17,5 @@ module.exports = {
   UPDATE_ROOM_API_KEY,
   CREATE_TRANSACTION_API_KEY,
   UPDATE_TRANSACTION_API_KEY,
+  CREATE_FUND_API_KEY,
 };

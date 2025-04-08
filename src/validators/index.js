@@ -8,6 +8,7 @@ const {
   UPDATE_ROOM_API_KEY,
   CREATE_TRANSACTION_API_KEY,
   UPDATE_TRANSACTION_API_KEY,
+  CREATE_FUND_API_KEY,
 } = require("../constants");
 const { join } = require("@prisma/client/runtime/library");
 module.exports = {
@@ -75,5 +76,8 @@ module.exports = {
     roomId: Joi.number().optional(),
     userTransactions: Joi.array().items(Joi.number()).optional(),
     dueDate: Joi.date().optional(),
+  }),
+  [CREATE_FUND_API_KEY]: Joi.object({
+    balance: Joi.number().required(),
   }),
 };
