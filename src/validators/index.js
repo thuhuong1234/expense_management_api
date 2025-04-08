@@ -65,8 +65,8 @@ module.exports = {
     description: Joi.string().required(),
     amount: Joi.number().required(),
     categoryId: Joi.number().required(),
-    roomId: Joi.number().required(),
-    userTransactions: Joi.array().items(Joi.number()).required(),
+    roomId: Joi.number().required().optional(),
+    userTransactions: Joi.array().items(Joi.number()).optional(),
     dueDate: Joi.date().optional(),
   }),
   [UPDATE_TRANSACTION_API_KEY]: Joi.object({

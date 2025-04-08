@@ -1,5 +1,5 @@
 const prisma = require("../prisma");
-const AppError = require("../utils/appError");
+const AppError = require("../utils/AppError");
 const createFund = async (userId, data) => {
   const { name, roomId, description, balance } = data;
   let existingFund;

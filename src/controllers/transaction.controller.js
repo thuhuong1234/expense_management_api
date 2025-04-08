@@ -10,20 +10,19 @@ const getAllTransactions = catchAsyncError(async (req, res, next) => {
 const createTransaction = catchAsyncError(async (req, res, next) => {
   const { amount, userTransactions, categoryId, roomId, ...rest } = req.body;
   const userId = req.user.id;
-  if (
+  const participants =
     !userTransactions ||
     !Array.isArray(userTransactions) ||
     userTransactions.length === 0
-  ) {
-    return next(new AppError("Participants are required", 400));
-  }
+      ? [req.user.id]
+      : userTransactions;
 
   const transaction = await transactionService.createTransaction({
     amount,
     categoryId,
     roomId,
     userId,
-    userTransactions,
+    userTransactions: participants,
     ...rest,
   });
 
@@ -33,8 +32,6 @@ const createTransaction = catchAsyncError(async (req, res, next) => {
 const getTransaction = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const transaction = await transactionService.getTransaction(+id);
-  console.log(transaction);
-
   if (!transaction) {
     return next(new AppError("Transaction not found", 404));
   }

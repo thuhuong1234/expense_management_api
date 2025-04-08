@@ -5,6 +5,29 @@ const getAllTransactions = () => {
   const transactions = prisma.transaction.findMany();
   return transactions;
 };
+const validateCategory = async (categoryId) => {
+  const category = await prisma.category.findUnique({
+    where: { id: categoryId },
+  });
+  if (!category) throw new AppError("Category not found", 404);
+  return category;
+};
+const validateRoomAccess = async (roomId, userId) => {
+  if (!roomId) return true;
+  const room = await prisma.userRoom.findFirst({ where: { roomId, userId } });
+  if (!room) throw new AppError("Room not found or access denied", 403);
+  return room;
+};
+const deductFromFund = async (fundId, amount) => {
+  await prisma.fund.update({
+    where: { id: fundId },
+    data: {
+      balance: {
+        decrement: amount,
+      },
+    },
+  });
+};
 const createTransaction = async (data) => {
   const {
     userTransactions,
@@ -15,18 +38,16 @@ const createTransaction = async (data) => {
     ...transactionData
   } = data;
 
-  const category = await prisma.category.findUnique({
-    where: { id: categoryId },
-  });
-  if (!category) {
-    throw new AppError("Category not found", 404);
-  }
+  await validateCategory(categoryId);
+  await validateRoomAccess(roomId, userId);
 
-  const room = await prisma.userRoom.findFirst({
-    where: { roomId, userId },
+  const fund = await prisma.fund.findFirst({
+    where: roomId ? { roomId } : { userId, roomId: null },
   });
-  if (!room) {
-    throw new AppError("Room not found", 404);
+  if (!fund) throw new AppError("Fund not found", 404);
+
+  if (fund.balance < amount) {
+    throw new AppError("Insufficient fund balance", 400);
   }
 
   const sharedAmount = Math.floor(amount / userTransactions.length);
@@ -50,6 +71,7 @@ const createTransaction = async (data) => {
   await prisma.userTransaction.createMany({
     data: userTransactionData,
   });
+  await deductFromFund(fund.id, amount);
   const fullTransaction = await getTransaction(newTransaction.id);
   return fullTransaction;
 };
