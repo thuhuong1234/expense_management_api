@@ -42,7 +42,7 @@ const forgotPassword = catchAsyncError(async (req, res, next) => {
     throw new AppError("User not found!", httpStatus.NOT_FOUND);
   }
   const refreshToken = await authService.generateResetToken(user);
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${refreshToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${refreshToken}`;
   const message = `Click vào link sau để đặt lại mật khẩu: <a href="${resetUrl}">Đặt lại mật khẩu</a>. Link này sẽ hết hạn sau 15 phút.`;
   await sendEmail(email, message);
   return res.status(201).json({

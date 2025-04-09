@@ -53,7 +53,7 @@ const resetPassword = async (token, password) => {
     },
   });
   if (!tokenUser) {
-    throw new AppError("Token is invalid or has expired", 400);
+    throw new AppError("Token is expired, send email again", 400);
   }
   const hashedPassword = await bcryptService.hashPassword(password);
   await prisma.user.update({
