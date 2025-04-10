@@ -1,6 +1,6 @@
 const prisma = require("../prisma");
-const AppError = require("../utils/AppError");
-
+const AppError = require("../utils/appError");
+const { getTimeRange } = require("../utils/timeRange");
 const getAllTransactions = () => {
   const transactions = prisma.transaction.findMany();
   return transactions;
@@ -105,6 +105,40 @@ const deleteTransaction = (id) => {
   });
   return transaction;
 };
+const getStatistics = async (userId, type) => {
+  const { from, to } = getTimeRange(type);
+
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      userId,
+      createdAt: {
+        gte: from,
+        lte: to,
+      },
+    },
+    include: {
+      category: true,
+    },
+  });
+  const byCategory = {};
+
+  let total = 0;
+
+  transactions.forEach((tx) => {
+    total += parseFloat(tx.amount);
+    const name = tx.category?.name || "Unknown";
+    if (!byCategory[name]) byCategory[name] = 0;
+    byCategory[name] += parseFloat(tx.amount);
+  });
+
+  return {
+    type,
+    from,
+    to,
+    total,
+    byCategory,
+  };
+};
 
 module.exports = {
   getAllTransactions,
@@ -112,4 +146,5 @@ module.exports = {
   createTransaction,
   updateTransaction,
   deleteTransaction,
+  getStatistics,
 };

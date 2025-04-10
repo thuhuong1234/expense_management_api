@@ -1,6 +1,6 @@
 const transactionService = require("../services/transaction.service");
 const catchAsyncError = require("../utils/catchAsyncError");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 
 const getAllTransactions = catchAsyncError(async (req, res, next) => {
   const transactions = await transactionService.getAllTransactions();
@@ -64,11 +64,23 @@ const deleteTransaction = catchAsyncError(async (req, res, next) => {
   const deletedTransaction = await transactionService.deleteTransaction(id);
   return res.status(201).json(deletedTransaction);
 });
+const getStatistics = catchAsyncError(async (req, res, next) => {
+  const userId = req.user.id;
+  const { type } = req.query;
+  if (!type || !["day", "week", "month", "year"].includes(type)) {
+    return res
+      .status(400)
+      .json({ message: "Invalid or missing type parameter" });
+  }
+  const transactions = await transactionService.getStatistics(userId, type);
 
+  return res.status(201).json(transactions);
+});
 module.exports = {
   getAllTransactions,
   createTransaction,
   getTransaction,
   updateTransaction,
   deleteTransaction,
+  getStatistics,
 };

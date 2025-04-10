@@ -7,6 +7,7 @@ router.route("/").get(transactionController.getAllTransactions);
 
 router.use(authMiddleware);
 
+router.route("/statistics").get(transactionController.getStatistics);
 router.route("/").post(transactionController.createTransaction);
 router.route("/:id").get(transactionController.getTransaction);
 router.route("/:id").put(transactionController.updateTransaction);

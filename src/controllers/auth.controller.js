@@ -1,6 +1,6 @@
 const authService = require("../services/auth.service");
 const catchAsyncError = require("../utils/catchAsyncError");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 const jwtService = require("../services/jwt.service");
 const prisma = require("../prisma");
 const sendEmail = require("../services/sendEmail");
