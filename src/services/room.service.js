@@ -1,6 +1,6 @@
 const { Role } = require("@prisma/client");
 const prisma = require("../prisma");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 const getAllRooms = () => {
   return prisma.room.findMany();
 };
@@ -34,21 +34,19 @@ const updateRoomQuality = async (roomId) => {
   });
 };
 
-const getRoom = async (roomId) => {
+const getRoom = async (id) => {
   return prisma.room.findUnique({
-    where: { id: Number(roomId) },
+    where: { id },
     include: {
       userRooms: true,
     },
   });
 };
-const updateRoom = async (roomId, updateData) => {
-  const updatedRoom = await prisma.room.update({
-    where: { id: Number(roomId) },
+const updateRoom = async (id, updateData) => {
+  return await prisma.room.update({
+    where: { id },
     data: updateData,
   });
-
-  return updatedRoom;
 };
 const deleteRoom = async (roomId, userId) => {
   const userRoom = await prisma.userRoom.findFirst({

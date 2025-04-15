@@ -1,7 +1,7 @@
 const roomService = require("../services/room.service");
 const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/AppError");
-const prisma = require("../prisma");
+
 const getAllRooms = catchAsyncError(async (req, res, next) => {
   const rooms = await roomService.getAllRooms();
   return res.status(201).json(rooms);
@@ -17,18 +17,19 @@ const createRoom = catchAsyncError(async (req, res, next) => {
 
 const getRoom = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const room = await roomService.getRoom(id);
+  const room = await roomService.getRoom(+id);
   if (!room) {
     return next(new AppError("Room not found", 404));
   }
 
-  return res.status(200).json(room);
+  return res.status(201).json(room);
 });
 
 const updateRoom = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const updatedRoom = await roomService.updateRoom(id, req.body);
-  return res.status(200).json(updatedRoom);
+  const updatedRoom = await roomService.updateRoom(+id, req.body);
+
+  return res.status(201).json(updatedRoom);
 });
 
 const deleteRoom = catchAsyncError(async (req, res, next) => {

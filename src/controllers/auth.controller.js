@@ -3,7 +3,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
 const jwtService = require("../services/jwt.service");
 const prisma = require("../prisma");
-const sendEmail = require("../services/sendEmail");
+const sendEmail = require("../services/sendEmail"); 
 const httpStatus = require("http-status");
 
 const login = catchAsyncError(async (req, res, next) => {
