@@ -35,6 +35,10 @@ const getUser = catchAsyncError(async (req, res, next) => {
 
 const updateUser = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
+  const avatar = req.file?.filename;
+  req.body.avatar = avatar;
+  console.log(req.body);
+
   const user = await userService.getUser(+id);
   if (!user) {
     return next(new AppError("User not found", 404));
