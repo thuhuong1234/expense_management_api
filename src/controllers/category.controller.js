@@ -1,6 +1,6 @@
 const categoryService = require("../services/category.service");
 const catchAsyncError = require("../utils/catchAsyncError");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 
 const getAllCategories = catchAsyncError(async (req, res, next) => {
   const categories = await categoryService.getAllCategories();
@@ -9,6 +9,8 @@ const getAllCategories = catchAsyncError(async (req, res, next) => {
 
 const createCategory = catchAsyncError(async (req, res, next) => {
   const userId = req.user.id;
+  const avatarUrl = req.file?.filename;
+  req.body.avatarUrl = avatarUrl;
   const newCategory = await categoryService.createCategory(req.body, userId);
 
   return res.status(201).json(newCategory);
@@ -16,7 +18,7 @@ const createCategory = catchAsyncError(async (req, res, next) => {
 
 const getCategory = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const category = await categoryService.getCategory(id);
+  const category = await categoryService.getCategory(+id);
   if (!category) {
     return next(new AppError("Category not found", 404));
   }
@@ -27,16 +29,17 @@ const getCategory = catchAsyncError(async (req, res, next) => {
 const updateCategory = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
-
-  const category = await categoryService.getCategory(id);
+  const avatarUrl = req.file?.filename;
+  req.body.avatarUrl = avatarUrl;
+  const category = await categoryService.getCategory(+id);
   if (!category) {
     return next(new AppError("Category not found", 404));
   }
 
   const updatedCategory = await categoryService.updateCategory(
-    id,
+    +id,
     req.body,
-    userId
+    +userId
   );
   return res.status(201).json(updatedCategory);
 });

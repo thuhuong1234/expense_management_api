@@ -17,7 +17,7 @@ const createCategory = (data, userId) => {
 const getCategory = (id) => {
   const category = prisma.category.findUnique({
     where: {
-      id: Number(id),
+      id,
     },
   });
   return category;
@@ -26,8 +26,8 @@ const getCategory = (id) => {
 const updateCategory = (id, data, userId) => {
   const category = prisma.category.update({
     where: {
-      id: Number(id),
-    },
+      id,
+    },  
     data: {
       ...data,
       userId,

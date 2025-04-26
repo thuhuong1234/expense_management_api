@@ -18,7 +18,8 @@ const upload = multer({
     if (
       file.mimetype.includes("jpeg") ||
       file.mimetype.includes("png") ||
-      file.mimetype.includes("jpg")
+      file.mimetype.includes("jpg")||
+      file.mimetype.includes("svg")
     ) {
       cb(null, true);
     } else {

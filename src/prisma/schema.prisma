@@ -90,7 +90,6 @@ model Room {
   userRooms        UserRoom[]
   userTransactions UserTransaction[]
   fund             Fund[]
-
   @@map("rooms")
 }
 

@@ -39,6 +39,12 @@ const getRoom = async (id) => {
     where: { id },
     include: {
       userRooms: true,
+      transactions: {
+        include: {
+          userTransactions: true,
+        },
+      },
+      fund: true,
     },
   });
 };
@@ -50,7 +56,7 @@ const updateRoom = async (id, updateData) => {
 };
 const deleteRoom = async (roomId, userId) => {
   const userRoom = await prisma.userRoom.findFirst({
-    where: { roomId: Number(roomId), userId },
+    where: { roomId, userId },
   });
 
   if (!userRoom) {
@@ -61,7 +67,7 @@ const deleteRoom = async (roomId, userId) => {
   }
   await prisma.room.delete({
     where: {
-      id: Number(roomId),
+      id: roomId,
     },
   });
   return {

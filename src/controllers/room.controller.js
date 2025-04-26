@@ -1,6 +1,6 @@
 const roomService = require("../services/room.service");
 const catchAsyncError = require("../utils/catchAsyncError");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 
 const getAllRooms = catchAsyncError(async (req, res, next) => {
   const rooms = await roomService.getAllRooms();
@@ -34,12 +34,12 @@ const updateRoom = catchAsyncError(async (req, res, next) => {
 
 const deleteRoom = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const room = await roomService.getRoom(id);
+  const room = await roomService.getRoom(+id);
   if (!room) {
     return next(new AppError("Room not found", 404));
   }
 
-  const deletedRoom = await roomService.deleteRoom(id);
+  const deletedRoom = await roomService.deleteRoom(+id, req.user.id);
   return res.status(201).json(deletedRoom);
 });
 

@@ -82,7 +82,11 @@ const getTransaction = async (id) => {
       id,
     },
     include: {
-      userTransactions: true,
+      userTransactions: {
+        select: {
+          user: true,
+        },
+      },
     },
   });
 };

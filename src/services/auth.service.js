@@ -1,6 +1,6 @@
 const prisma = require("../prisma");
 const bcryptService = require("../services/bcrypt");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 const jwtService = require("../services/jwt.service");
 const crypto = require("crypto");
 const { saveRefreshToken } = require("../services/token.service");

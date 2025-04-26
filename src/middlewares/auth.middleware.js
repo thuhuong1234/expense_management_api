@@ -1,5 +1,5 @@
 const jwtService = require("../services/jwt.service");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 const catchAsyncError = require("../utils/catchAsyncError");
 
 const authMiddleware = catchAsyncError(async (req, res, next) => {

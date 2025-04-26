@@ -27,7 +27,7 @@ const routes = [
     path: "/rooms",
     route: roomRouter,
   },
-  {
+  { 
     path: "/funds",
     route: fundRouter,
   },
