@@ -18,15 +18,25 @@ const validateRoomAccess = async (roomId, userId) => {
   if (!room) throw new AppError("Room not found or access denied", 403);
   return room;
 };
-const deductFromFund = async (fundId, amount) => {
-  await prisma.fund.update({
-    where: { id: fundId },
-    data: {
-      balance: {
-        decrement: amount,
-      },
-    },
+const updateFund = async (fundId, categoryId, amount) => {
+  const category = await prisma.category.findUnique({
+    where: { id: categoryId },
   });
+  if (category.categoryType === "Income") {
+    return await prisma.fund.update({
+      where: { id: fundId },
+      data: {
+        balance: { increment: amount },
+      },
+    });
+  } else {
+    return await prisma.fund.update({
+      where: { id: fundId },
+      data: {
+        balance: { decrement: amount },
+      },
+    });
+  }
 };
 const createTransaction = async (data) => {
   const {
@@ -35,6 +45,7 @@ const createTransaction = async (data) => {
     roomId,
     amount,
     userId,
+    fundId,
     ...transactionData
   } = data;
 
@@ -57,6 +68,7 @@ const createTransaction = async (data) => {
       roomId,
       amount,
       userId,
+      fundId: fund.id,
       ...transactionData,
     },
   });
@@ -71,7 +83,14 @@ const createTransaction = async (data) => {
   await prisma.userTransaction.createMany({
     data: userTransactionData,
   });
-  await deductFromFund(fund.id, amount);
+
+  await updateFund(
+    newTransaction.fundId,
+    newTransaction.categoryId,
+    newTransaction.amount
+  );
+  console.log(updateFund);
+
   const fullTransaction = await getTransaction(newTransaction.id);
   return fullTransaction;
 };
