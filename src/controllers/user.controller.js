@@ -29,7 +29,6 @@ const getUser = catchAsyncError(async (req, res, next) => {
   if (!user) {
     return next(new AppError("User not found", 404));
   }
-
   return res.status(201).json(user);
 });
 

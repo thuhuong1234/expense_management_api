@@ -27,7 +27,7 @@ const updateCategory = (id, data, userId) => {
   const category = prisma.category.update({
     where: {
       id,
-    },  
+    },
     data: {
       ...data,
       userId,
@@ -38,9 +38,7 @@ const updateCategory = (id, data, userId) => {
 
 const deleteCategory = (id) => {
   const category = prisma.category.delete({
-    where: {
-      id: Number(id),
-    },
+    where: { id },
   });
   return category;
 };

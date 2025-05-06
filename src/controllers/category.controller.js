@@ -9,8 +9,10 @@ const getAllCategories = catchAsyncError(async (req, res, next) => {
 
 const createCategory = catchAsyncError(async (req, res, next) => {
   const userId = req.user.id;
-  const avatarUrl = req.file?.filename;
+  const avatarUrl = req.file?.filename || "32-image-3.svg";
   req.body.avatarUrl = avatarUrl;
+  console.log(avatarUrl);
+
   const newCategory = await categoryService.createCategory(req.body, userId);
 
   return res.status(201).json(newCategory);
@@ -46,12 +48,12 @@ const updateCategory = catchAsyncError(async (req, res, next) => {
 
 const deleteCategory = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const category = await categoryService.getCategory(id);
+  const category = await categoryService.getCategory(+id);
   if (!category) {
     return next(new AppError("Category not found", 404));
   }
 
-  const deletedCategory = await categoryService.deleteCategory(id);
+  const deletedCategory = await categoryService.deleteCategory(+id);
   return res.status(201).json(deletedCategory);
 });
 

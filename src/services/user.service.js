@@ -9,6 +9,7 @@ const getUser = async (id) => {
   return await prisma.user.findUnique({
     where: { id },
     include: {
+      rooms: true,
       userTransactions: {
         include: {
           transaction: true,
