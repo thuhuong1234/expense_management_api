@@ -1,8 +1,31 @@
 const { Role } = require("@prisma/client");
 const prisma = require("../prisma");
 const AppError = require("../utils/appError");
-const getAllRooms = () => {
-  return prisma.room.findMany();
+const apiFeature = require("../utils/apiFeature");
+const getAllRooms = async (queryParams) => {
+  const { where, orderBy, pagination } = apiFeature({
+    queryParams,
+    searchableFields: ["name"],
+    defaultSort: {
+      createdAt: "desc",
+    },
+  });
+  const [rooms, total] = await Promise.all([
+    prisma.room.findMany({
+      where,
+      orderBy,
+      ...pagination,
+    }),
+    prisma.room.count({ where }),
+  ]);
+
+  return {
+    rooms,
+    total,
+    page: parseInt(queryParams.page) || 1,
+    limit: pagination.take || 10,
+    totalPage: Math.ceil(total / pagination.take),
+  };
 };
 const createRoom = async (data, userId) => {
   const newRoom = await prisma.room.create({

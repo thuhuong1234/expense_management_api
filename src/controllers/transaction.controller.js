@@ -3,7 +3,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
 
 const getAllTransactions = catchAsyncError(async (req, res, next) => {
-  const transactions = await transactionService.getAllTransactions();
+  const transactions = await transactionService.getAllTransactions(req.query);
   return res.status(201).json(transactions);
 });
 

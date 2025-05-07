@@ -1,10 +1,33 @@
 const prisma = require("../prisma");
 const AppError = require("../utils/appError");
 const { getTimeRange } = require("../utils/timeRange");
-const getAllTransactions = () => {
-  const transactions = prisma.transaction.findMany();
-  return transactions;
+const apiFeature = require("../utils/apiFeature");
+const getAllTransactions = async (queryParams) => {
+  const { where, orderBy, pagination } = apiFeature({
+    queryParams,
+    searchableFields: ["description"],
+    defaultSort: {
+      createdAt: "desc",
+    },
+  });
+  const [transactions, total] = await Promise.all([
+    prisma.transaction.findMany({
+      where,
+      orderBy,
+      ...pagination,
+    }),
+    prisma.transaction.count({ where }),
+  ]);
+
+  return {
+    transactions,
+    total,
+    page: parseInt(queryParams.page) || 1,
+    limit: pagination.take || 10,
+    totalPage: Math.ceil(total / pagination.take),
+  };
 };
+
 const validateCategory = async (categoryId) => {
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
@@ -89,8 +112,6 @@ const createTransaction = async (data) => {
     newTransaction.categoryId,
     newTransaction.amount
   );
-  console.log(updateFund);
-
   const fullTransaction = await getTransaction(newTransaction.id);
   return fullTransaction;
 };

@@ -16,8 +16,6 @@ const createUser = catchAsyncError(async (req, res, next) => {
 
 const getAllUsers = catchAsyncError(async (req, res, next) => {
   const users = await userService.getAllUsers(req.query);
-  console.log(req.query);
-  
   if (!users) {
     return next(new AppError("Users not found", 404));
   }

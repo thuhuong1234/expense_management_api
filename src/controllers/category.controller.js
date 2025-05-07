@@ -3,7 +3,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
 
 const getAllCategories = catchAsyncError(async (req, res, next) => {
-  const categories = await categoryService.getAllCategories();
+  const categories = await categoryService.getAllCategories(req.query);
   return res.status(201).json(categories);
 });
 
@@ -11,8 +11,6 @@ const createCategory = catchAsyncError(async (req, res, next) => {
   const userId = req.user.id;
   const avatarUrl = req.file?.filename || "32-image-3.svg";
   req.body.avatarUrl = avatarUrl;
-  console.log(avatarUrl);
-
   const newCategory = await categoryService.createCategory(req.body, userId);
 
   return res.status(201).json(newCategory);

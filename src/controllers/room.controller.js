@@ -3,7 +3,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
 
 const getAllRooms = catchAsyncError(async (req, res, next) => {
-  const rooms = await roomService.getAllRooms();
+  const rooms = await roomService.getAllRooms(req.query);
   return res.status(201).json(rooms);
 });
 
