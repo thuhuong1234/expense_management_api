@@ -1,7 +1,18 @@
 const prisma = require("../prisma");
 
 const getAllCategories = () => {
-  const categories = prisma.category.findMany();
+  const categories = prisma.category.findMany({
+    // skip: 10,
+    // take: 10,
+    // where: {
+    //   name: {
+    //     contains: "Prisma",
+    //   },
+    // },
+    orderBy: {
+      categoryType: "desc",
+    },
+  });
   return categories;
 };
 const createCategory = (data, userId) => {
