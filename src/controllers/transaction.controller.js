@@ -66,14 +66,15 @@ const deleteTransaction = catchAsyncError(async (req, res, next) => {
 });
 const getStatistics = catchAsyncError(async (req, res, next) => {
   const userId = req.user.id;
+  const roomId = req.query.roomId;
+  const id = roomId ? { roomId: +roomId } : { userId: +userId };
   const { type } = req.query;
   if (!type || !["day", "week", "month", "year"].includes(type)) {
     return res
       .status(400)
       .json({ message: "Invalid or missing type parameter" });
   }
-  const transactions = await transactionService.getStatistics(userId, type);
-
+  const transactions = await transactionService.getStatistics(id, type);
   return res.status(201).json(transactions);
 });
 module.exports = {

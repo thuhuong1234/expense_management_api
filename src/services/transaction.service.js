@@ -2,6 +2,9 @@ const prisma = require("../prisma");
 const AppError = require("../utils/appError");
 const { getTimeRange } = require("../utils/timeRange");
 const apiFeature = require("../utils/apiFeature");
+const dayjs = require("dayjs");
+const timezone = require("dayjs/plugin/timezone");
+dayjs.extend(timezone);
 const getAllTransactions = async (queryParams) => {
   const { where, orderBy, pagination } = apiFeature({
     queryParams,
@@ -80,9 +83,9 @@ const createTransaction = async (data) => {
   });
   if (!fund) throw new AppError("Fund not found", 404);
 
-  if (fund.balance < amount) {
-    throw new AppError("Insufficient fund balance", 400);
-  }
+  // if (fund.balance < amount) {
+  //   throw new AppError("Insufficient fund balance", 400);
+  // }
 
   const sharedAmount = Math.floor(amount / userTransactions.length);
   const newTransaction = await prisma.transaction.create({
@@ -149,12 +152,12 @@ const deleteTransaction = (id) => {
   });
   return transaction;
 };
-const getStatistics = async (userId, type) => {
-  const { from, to } = getTimeRange(type);
 
+const getStatistics = async (id, type) => {
+  const { from, to } = getTimeRange(type);
   const transactions = await prisma.transaction.findMany({
     where: {
-      userId,
+      ...id,
       createdAt: {
         gte: from,
         lte: to,
@@ -165,14 +168,45 @@ const getStatistics = async (userId, type) => {
     },
   });
   const byCategory = {};
-
+  const byDay = {};
+  let totalExpense = 0;
+  let totalIncome = 0;
   let total = 0;
 
   transactions.forEach((tx) => {
-    total += parseFloat(tx.amount);
+    const day = dayjs(tx.createdAt).tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
     const name = tx.category?.name || "Unknown";
-    if (!byCategory[name]) byCategory[name] = 0;
-    byCategory[name] += parseFloat(tx.amount);
+    const typeCategory = tx.category?.categoryType || "Unknown";
+    if (!byDay[day]) {
+      byDay[day] = {
+        expense: 0,
+        income: 0,
+        total: 0,
+        byCategory: {},
+      };
+    }
+
+    if (typeCategory === "Expense") {
+      if (!byCategory[name]) byCategory[name] = 0;
+      byCategory[name] += parseFloat(tx.amount);
+
+      byDay[day].expense += parseFloat(tx.amount);
+      totalExpense += parseFloat(tx.amount);
+
+      if (!byDay[day].byCategory[name]) byDay[day].byCategory[name] = 0;
+      byDay[day].byCategory[name] += parseFloat(tx.amount);
+    } else if (typeCategory === "Income") {
+      if (!byCategory[name]) byCategory[name] = 0;
+      byCategory[name] += parseFloat(tx.amount);
+
+      byDay[day].income += parseFloat(tx.amount);
+      totalIncome += parseFloat(tx.amount);
+
+      if (!byDay[day].byCategory[name]) byDay[day].byCategory[name] = 0;
+      byDay[day].byCategory[name] += parseFloat(tx.amount);
+    }
+
+    byDay[day].total += parseFloat(tx.amount);
   });
 
   return {
@@ -181,6 +215,9 @@ const getStatistics = async (userId, type) => {
     to,
     total,
     byCategory,
+    byDay,
+    totalExpense,
+    totalIncome,
   };
 };
 
