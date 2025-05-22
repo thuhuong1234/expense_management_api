@@ -2,7 +2,7 @@ const userService = require("../services/user.service");
 const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
 const bcryptService = require("../services/bcrypt");
-
+const generateExcel = require("../utils/downloadFile");
 const createUser = catchAsyncError(async (req, res, next) => {
   const { password } = req.body;
   const hashedPassword = await bcryptService.hashPassword(password);
@@ -56,10 +56,40 @@ const deleteUser = catchAsyncError(async (req, res, next) => {
   return res.status(201).json(deletedUser);
 });
 
+const downloadListUser = catchAsyncError(async (req, res, next) => {
+  const data = await userService.getAllUsers(req.query);
+  if (!data.users || !Array.isArray(data.users)) {
+    return next(new AppError("Users not found", 404));
+  }
+  const columns = [
+    { header: "ID", key: "id", width: 10 },
+    { header: "Name", key: "name", width: 25 },
+    { header: "Email", key: "email", width: 30 },
+    { header: "Phone", key: "phone", width: 25 },
+  ];
+  const rows = data.users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+  }));
+
+  const file = await generateExcel({
+    rows,
+    columns,
+    sheetName: "Users",
+  });
+  res.download(file, (err) => {
+    if (err) {
+      return next(new AppError("File not found", 404));
+    }
+  });
+});
 module.exports = {
   createUser,
   getAllUsers,
   getUser,
   updateUser,
   deleteUser,
+  downloadListUser,
 };
