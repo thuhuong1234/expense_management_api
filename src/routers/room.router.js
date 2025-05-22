@@ -9,7 +9,7 @@ const roomController = require("../controllers/room.controller");
 roomRouter.route("/").get(roomController.getAllRooms);
 
 roomRouter.use(authMiddleware);
-
+roomRouter.route("/download").get(roomController.downloadRooms);
 roomRouter.route("/").post(roomController.createRoom);
 roomRouter.route("/:id").get(roomController.getRoom);
 roomRouter.route("/:id").put(roomController.updateRoom);

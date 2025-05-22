@@ -1,6 +1,7 @@
 const roomService = require("../services/room.service");
 const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
+const generateExcel = require("../utils/downloadFile");
 
 const getAllRooms = catchAsyncError(async (req, res, next) => {
   const rooms = await roomService.getAllRooms(req.query);
@@ -65,6 +66,38 @@ const removeUser = catchAsyncError(async (req, res, next) => {
   );
   return res.status(201).json(result);
 });
+
+const downloadRooms = catchAsyncError(async (req, res, next) => {
+  const data = await roomService.getAllRooms(req.query);
+  if (!data.rooms || !Array.isArray(data.rooms)) {
+    return next(new AppError("Users not found", 404));
+  }
+  const columns = [
+    { header: "ID", key: "id", width: 10 },
+    { header: "Name", key: "name", width: 25 },
+    { header: "Quality", key: "quality", width: 10 },
+    { header: "Fund", key: "fund", width: 25 },
+    { header: "Members", key: "userRooms", width: 30 },
+    { header: "", key: "", width: 30 },
+    { header: "Transactions", key: "transactions", width: 30 },
+  ];
+  const rowTitle = ["", "", "", "", "Name", "Role", "Transations"];
+  const file = await generateExcel({
+    rows: data.rooms,
+    columns,
+    rowTitle,
+    sheetName: "Room Report",
+    customLayout: true,
+    fillWorksheetRows: roomService.fillWorksheetRows,
+  });
+
+  res.download(file.filePath, (err) => {
+    if (err) {
+      return next(new AppError("File not found", 404));
+    }
+  });
+});
+
 module.exports = {
   getAllRooms,
   createRoom,
@@ -73,4 +106,5 @@ module.exports = {
   deleteRoom,
   addUser,
   removeUser,
+  downloadRooms,
 };

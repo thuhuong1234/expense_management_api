@@ -13,6 +13,15 @@ const getAllRooms = async (queryParams) => {
   const [rooms, total] = await Promise.all([
     prisma.room.findMany({
       where,
+      include: {
+        userRooms: true,
+        transactions: {
+          include: {
+            userTransactions: true,
+          },
+        },
+        fund: true,
+      },
       orderBy,
       ...pagination,
     }),
@@ -159,6 +168,48 @@ const removeUserFromRoom = async (roomId, memberId, userId) => {
   });
   return updateRoomQuality(Number(roomId));
 };
+const fillWorksheetRows = async (worksheet, data, currentRow = 3) => {
+  for (const room of data) {
+    const users = room.userRooms || [];
+    const rowspan = users.length || 1;
+    const fundBalance = Number(room.fund?.[0]?.balance) || 0;
+    const transactions = room.transactions?.length || 0;
+
+    for (let i = 0; i < rowspan; i++) {
+      const user = users[i] || {};
+      const row = worksheet.getRow(currentRow + i);
+
+      if (i === 0) {
+        row.getCell(1).value = room.id;
+        row.getCell(2).value = room.name;
+        row.getCell(3).value = room.quality;
+        row.getCell(4).value = fundBalance;
+        row.getCell(7).value = transactions;
+      }
+      const getEmailByUserId = async (userId) => {
+        const result = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { email: true },
+        });
+        return {
+          email: result?.email || "",
+        };
+      };
+      const detailUser = await getEmailByUserId(user.userId);
+      row.getCell(5).value = detailUser.email || "";
+      row.getCell(6).value = user.role || "";
+    }
+
+    if (rowspan > 1) {
+      worksheet.mergeCells(`A${currentRow}:A${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`B${currentRow}:B${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`C${currentRow}:C${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`D${currentRow}:D${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`G${currentRow}:G${currentRow + rowspan - 1}`);
+    }
+    currentRow += rowspan;
+  }
+};
 
 module.exports = {
   getAllRooms,
@@ -169,4 +220,5 @@ module.exports = {
   addUserToRoom,
   removeUserFromRoom,
   updateRoomQuality,
+  fillWorksheetRows,
 };
