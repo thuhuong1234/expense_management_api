@@ -8,62 +8,64 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  isAdmin       Boolean  @default(false) @map("is_admin")
-  email         String   @unique @db.VarChar(45)
-  name          String?  @db.VarChar(45)
-  password      String   @db.VarChar(255)
-  avatar        String?  @db.VarChar(255)
-  phone         String   @unique @default("") @db.Char(45)
-  rememberToken Boolean? @default(false) @map("remember_token")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @map("updated_at")
-  gender        Genders? @default(Undefined)
-
+  id               Int               @id @default(autoincrement())
+  isAdmin          Boolean           @default(false) @map("is_admin")
+  email            String            @unique @db.VarChar(45)
+  name             String?           @db.VarChar(45)
+  password         String            @db.VarChar(255)
+  avatar           String?           @db.VarChar(255)
+  phone            String            @unique @default("") @db.Char(45)
+  rememberToken    Boolean?          @default(false) @map("remember_token")
+  gender           Genders?          @default(Undefined)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @default(now()) @map("updated_at")
+  categories       Category[]
+  fund             Fund[]
+  rooms            Room[]
   tokens           Token[]
   transactions     Transaction[]
-  categories       Category[]
-  rooms            Room[]
   userRooms        UserRoom[]        @relation("UserRooms_User")
   userTransactions UserTransaction[]
-  fund             Fund[]
 
   @@map("users")
 }
 
 model Category {
-  id           Int          @id @default(autoincrement())
-  name         String       @db.VarChar(45)
-  avatarUrl    String?      @db.VarChar(255)
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @default(now()) @map("updated_at")
-  categoryType CategoryType @default(Undefined) @map("category_type")
-  userId       Int          @map("created_by")
-  user         User         @relation(fields: [userId], references: [id])
-
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(45)
+  categoryType CategoryType  @default(Undefined) @map("category_type")
+  avatarUrl    String?       @db.VarChar(255)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  userId       Int           @map("created_by")
+  updatedAt    DateTime      @default(now()) @map("updated_at")
+  user         User          @relation(fields: [userId], references: [id])
   transactions Transaction[]
 
+  @@index([userId], map: "categories_created_by_fkey")
   @@map("categories")
 }
 
 model Transaction {
-  id          Int      @id @default(autoincrement())
-  description String   @db.VarChar(45)
-  amount      Decimal  @db.Decimal(15, 2)
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @map("updated_at")
-  userId      Int      @map("created_by")
-  roomId      Int?     @map("room_id")
-  categoryId  Int      @map("category_id")
-  fundId      Int?     @map("fund_id")
-  room        Room?    @relation(fields: [roomId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
-  category    Category @relation(fields: [categoryId], references: [id])
-  fund        Fund?    @relation(fields: [fundId], references: [id])
-
+  id               Int               @id @default(autoincrement())
+  description      String            @db.VarChar(45)
+  amount           Decimal           @db.Decimal(15, 2)
+  date             DateTime          @default(now())
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @default(now()) @map("updated_at")
+  userId           Int               @map("created_by")
+  roomId           Int?              @map("room_id")
+  categoryId       Int               @map("category_id")
+  fundId           Int?              @map("fund_id")
+  category         Category          @relation(fields: [categoryId], references: [id])
+  user             User              @relation(fields: [userId], references: [id])
+  fund             Fund?             @relation(fields: [fundId], references: [id])
+  room             Room?             @relation(fields: [roomId], references: [id])
   userTransactions UserTransaction[]
 
+  @@index([categoryId], map: "transactions_category_id_fkey")
+  @@index([userId], map: "transactions_created_by_fkey")
+  @@index([fundId], map: "transactions_fund_id_fkey")
+  @@index([roomId], map: "transactions_room_id_fkey")
   @@map("transactions")
 }
 
@@ -74,22 +76,24 @@ model Token {
   expiresAt DateTime @map("expires_at")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId], map: "tokens_user_id_fkey")
   @@map("tokens")
 }
 
 model Room {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(45)
-  quality   Int?     @default(0) @db.Int
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at")
-  userId    Int?     @map("created_by")
-  user      User?    @relation(fields: [userId], references: [id])
-
+  id               Int               @id @default(autoincrement())
+  name             String            @db.VarChar(45)
+  quality          Int?              @default(0)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @default(now()) @map("updated_at")
+  userId           Int?              @map("created_by")
+  fund             Fund[]
+  user             User?             @relation(fields: [userId], references: [id])
   transactions     Transaction[]
   userRooms        UserRoom[]
   userTransactions UserTransaction[]
-  fund             Fund[]
+
+  @@index([userId], map: "rooms_created_by_fkey")
   @@map("rooms")
 }
 
@@ -100,10 +104,11 @@ model UserRoom {
   role     Role     @default(Member)
   joinedAt DateTime @default(now())
   isLeader Boolean  @default(false)
-  user     User     @relation("UserRooms_User", fields: [userId], references: [id], onDelete: Cascade)
   room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation("UserRooms_User", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roomId])
+  @@index([roomId], map: "user_rooms_room_id_fkey")
   @@map("user_rooms")
 }
 
@@ -114,27 +119,31 @@ model UserTransaction {
   roomId        Int?        @map("room_id")
   amount        Decimal     @db.Decimal(15, 2)
   dueDate       DateTime?
-  user          User        @relation(fields: [userId], references: [id])
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
   room          Room?       @relation(fields: [roomId], references: [id])
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
 
+  @@index([roomId], map: "user_transactions_room_id_fkey")
+  @@index([transactionId], map: "user_transactions_transaction_id_fkey")
+  @@index([userId], map: "user_transactions_user_id_fkey")
   @@map("user_transactions")
 }
 
 model Fund {
-  id          Int      @id @default(autoincrement())
-  name        String?  @db.VarChar(100)
-  description String?  @db.Text
-  userId      Int?     @map("user_id")
-  roomId      Int?     @map("room_id")
-  balance     Decimal  @default(0.0) @db.Decimal(15, 2)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @map("updated_at")
-  user        User?    @relation(fields: [userId], references: [id])
-  room        Room?    @relation(fields: [roomId], references: [id])
-
+  id           Int           @id @default(autoincrement())
+  name         String?       @db.VarChar(100)
+  description  String?       @db.Text
+  userId       Int?          @map("user_id")
+  roomId       Int?          @map("room_id")
+  balance      Decimal       @default(0.00) @db.Decimal(15, 2)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @default(now()) @map("updated_at")
+  room         Room?         @relation(fields: [roomId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
   transactions Transaction[]
 
+  @@index([roomId], map: "funds_room_id_fkey")
+  @@index([userId], map: "funds_user_id_fkey")
   @@map("funds")
 }
 
