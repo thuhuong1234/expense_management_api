@@ -80,10 +80,7 @@ const getStatistics = catchAsyncError(async (req, res, next) => {
 });
 
 const downloadTransactions = catchAsyncError(async (req, res, next) => {
-  const query = {
-    ...req.query,
-    all: true,
-  };
+  const query = { ...req.query, all: true };
   const data = await transactionService.getAllTransactions(query);
   if (!data.transactions || !Array.isArray(data.transactions)) {
     return next(new AppError("Transactions not found", 404));
@@ -102,7 +99,7 @@ const downloadTransactions = catchAsyncError(async (req, res, next) => {
     rows: data.transactions,
     columns,
     rowTitle,
-    sheetName: "Transaction Report",
+    sheetName: "Transaction_Report",
     customLayout: true,
     fillWorksheetRows: transactionService.fillWorksheetRows,
   });

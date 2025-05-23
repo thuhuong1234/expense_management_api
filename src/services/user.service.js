@@ -21,6 +21,10 @@ const getUser = async (id) => {
 };
 
 const getAllUsers = async (queryParams) => {
+  if (queryParams.all) {
+    const users = await prisma.user.findMany();
+    return { users };
+  }
   const { where, orderBy, pagination } = apiFeature({
     queryParams,
     searchableFields: ["name", "email", "phone"],

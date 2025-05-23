@@ -3,6 +3,20 @@ const prisma = require("../prisma");
 const AppError = require("../utils/appError");
 const apiFeature = require("../utils/apiFeature");
 const getAllRooms = async (queryParams) => {
+  if (queryParams.all) {
+    const rooms = await prisma.room.findMany({
+      include: {
+        userRooms: true,
+        transactions: {
+          include: {
+            userTransactions: true,
+          },
+        },
+        fund: true,
+      },
+    });
+    return { rooms };
+  }
   const { where, orderBy, pagination } = apiFeature({
     queryParams,
     searchableFields: ["name"],

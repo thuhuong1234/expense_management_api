@@ -57,7 +57,8 @@ const deleteUser = catchAsyncError(async (req, res, next) => {
 });
 
 const downloadListUser = catchAsyncError(async (req, res, next) => {
-  const data = await userService.getAllUsers(req.query);
+  const query = { ...req.query, all: true };
+  const data = await userService.getAllUsers(query);
   if (!data.users || !Array.isArray(data.users)) {
     return next(new AppError("Users not found", 404));
   }
@@ -77,7 +78,7 @@ const downloadListUser = catchAsyncError(async (req, res, next) => {
   const file = await generateExcel({
     rows,
     columns,
-    sheetName: "Users",
+    sheetName: "User_Report",
   });
   res.download(file, (err) => {
     if (err) {

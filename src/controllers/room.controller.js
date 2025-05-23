@@ -68,7 +68,8 @@ const removeUser = catchAsyncError(async (req, res, next) => {
 });
 
 const downloadRooms = catchAsyncError(async (req, res, next) => {
-  const data = await roomService.getAllRooms(req.query);
+  const query = { ...req.query, all: true };
+  const data = await roomService.getAllRooms(query);
   if (!data.rooms || !Array.isArray(data.rooms)) {
     return next(new AppError("Rooms not found", 404));
   }
@@ -86,7 +87,7 @@ const downloadRooms = catchAsyncError(async (req, res, next) => {
     rows: data.rooms,
     columns,
     rowTitle,
-    sheetName: "Room Report",
+    sheetName: "Room_Report",
     customLayout: true,
     fillWorksheetRows: roomService.fillWorksheetRows,
   });
@@ -117,7 +118,7 @@ const downloadDetailRoom = catchAsyncError(async (req, res, next) => {
     rows: data,
     columns,
     rowTitle,
-    sheetName: "Room Detail Report",
+    sheetName: "Room_Detail_Report",
     customLayout: true,
     fillWorksheetRows: roomService.fillWorksheetDetailRows,
   });
