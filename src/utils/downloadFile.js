@@ -49,7 +49,7 @@ const generateExcel = async ({
   await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
   await workbook.xlsx.writeFile(filePath);
 
-  return { filePath, worksheet };
+  return filePath;
 };
 
 const renderRows = async (

@@ -70,18 +70,18 @@ const removeUser = catchAsyncError(async (req, res, next) => {
 const downloadRooms = catchAsyncError(async (req, res, next) => {
   const data = await roomService.getAllRooms(req.query);
   if (!data.rooms || !Array.isArray(data.rooms)) {
-    return next(new AppError("Users not found", 404));
+    return next(new AppError("Rooms not found", 404));
   }
   const columns = [
-    { header: "ID", key: "id", width: 10 },
-    { header: "Name", key: "name", width: 25 },
-    { header: "Quality", key: "quality", width: 10 },
-    { header: "Fund", key: "fund", width: 25 },
-    { header: "Members", key: "userRooms", width: 30 },
+    { header: "ID", width: 10 },
+    { header: "Name", width: 25 },
+    { header: "Quality", width: 10 },
+    { header: "Fund", width: 25 },
+    { header: "Members", width: 30 },
     { header: "", key: "", width: 30 },
-    { header: "Transactions", key: "transactions", width: 30 },
+    { header: "Transactions", width: 30 },
   ];
-  const rowTitle = ["", "", "", "", "Name", "Role", "Transations"];
+  const rowTitle = ["", "", "", "", "Name", "Role", ""];
   const file = await generateExcel({
     rows: data.rooms,
     columns,
@@ -91,13 +91,43 @@ const downloadRooms = catchAsyncError(async (req, res, next) => {
     fillWorksheetRows: roomService.fillWorksheetRows,
   });
 
-  res.download(file.filePath, (err) => {
+  res.download(file, (err) => {
     if (err) {
       return next(new AppError("File not found", 404));
     }
   });
 });
 
+const downloadDetailRoom = catchAsyncError(async (req, res, next) => {
+  const data = await roomService.getRoom(+req.params.id);
+  if (!data) {
+    return next(new AppError("Room not found", 404));
+  }
+  const columns = [
+    { header: "Room", width: 25 },
+    { header: "Description", width: 30 },
+    { header: "Amount", width: 25 },
+    { header: "Category", width: 25 },
+    { header: "User_transactions", width: 40 },
+    { header: "", width: 20 },
+    { header: "Date", width: 30 },
+  ];
+  const rowTitle = ["", "", "", "", "User", "Amount", ""];
+  const file = await generateExcel({
+    rows: data,
+    columns,
+    rowTitle,
+    sheetName: "Room Detail Report",
+    customLayout: true,
+    fillWorksheetRows: roomService.fillWorksheetDetailRows,
+  });
+
+  res.download(file, (err) => {
+    if (err) {
+      return next(new AppError("File not found", 404));
+    }
+  });
+});
 module.exports = {
   getAllRooms,
   createRoom,
@@ -107,4 +137,5 @@ module.exports = {
   addUser,
   removeUser,
   downloadRooms,
+  downloadDetailRoom,
 };

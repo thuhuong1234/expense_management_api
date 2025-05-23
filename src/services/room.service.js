@@ -168,6 +168,24 @@ const removeUserFromRoom = async (roomId, memberId, userId) => {
   });
   return updateRoomQuality(Number(roomId));
 };
+const getEmailByUserId = async (userId) => {
+  const result = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  });
+  return {
+    email: result?.email || "",
+  };
+};
+const getCategoryById = async (categoryId) => {
+  const result = await prisma.category.findUnique({
+    where: { id: categoryId },
+    select: { name: true },
+  });
+  return {
+    name: result?.name || "",
+  };
+};
 const fillWorksheetRows = async (worksheet, data, currentRow = 3) => {
   for (const room of data) {
     const users = room.userRooms || [];
@@ -186,15 +204,6 @@ const fillWorksheetRows = async (worksheet, data, currentRow = 3) => {
         row.getCell(4).value = fundBalance;
         row.getCell(7).value = transactions;
       }
-      const getEmailByUserId = async (userId) => {
-        const result = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { email: true },
-        });
-        return {
-          email: result?.email || "",
-        };
-      };
       const detailUser = await getEmailByUserId(user.userId);
       row.getCell(5).value = detailUser.email || "";
       row.getCell(6).value = user.role || "";
@@ -210,7 +219,40 @@ const fillWorksheetRows = async (worksheet, data, currentRow = 3) => {
     currentRow += rowspan;
   }
 };
+const fillWorksheetDetailRows = async (worksheet, data, currentRow = 3) => {
+  const nameRoom = data.name;
+  for (const transaction of data.transactions) {
+    const usersTransactions = transaction.userTransactions || [];
+    const rowspan = usersTransactions.length || 1;
+    const category = await getCategoryById(transaction.categoryId);
 
+    for (let i = 0; i < rowspan; i++) {
+      const user = usersTransactions[i] || {};
+      const row = worksheet.getRow(currentRow + i);
+
+      if (i === 0) {
+        row.getCell(1).value = nameRoom;
+        row.getCell(2).value = transaction.description;
+        row.getCell(3).value = Number(transaction.amount);
+        row.getCell(4).value = category.name;
+        row.getCell(7).value = transaction.date.toLocaleString("vi-VN");
+      }
+
+      const detailUser = await getEmailByUserId(user.userId);
+      row.getCell(5).value = detailUser.email || "";
+      row.getCell(6).value = Number(user.amount) || "";
+    }
+
+    if (rowspan > 1) {
+      worksheet.mergeCells(`A${currentRow}:A${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`B${currentRow}:B${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`C${currentRow}:C${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`D${currentRow}:D${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`G${currentRow}:G${currentRow + rowspan - 1}`);
+    }
+    currentRow += rowspan;
+  }
+};
 module.exports = {
   getAllRooms,
   createRoom,
@@ -221,4 +263,5 @@ module.exports = {
   removeUserFromRoom,
   updateRoomQuality,
   fillWorksheetRows,
+  fillWorksheetDetailRows,
 };
