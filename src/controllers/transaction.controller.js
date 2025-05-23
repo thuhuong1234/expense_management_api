@@ -1,6 +1,7 @@
 const transactionService = require("../services/transaction.service");
 const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
+const generateExcel = require("../utils/downloadFile");
 
 const getAllTransactions = catchAsyncError(async (req, res, next) => {
   const transactions = await transactionService.getAllTransactions(req.query);
@@ -77,6 +78,41 @@ const getStatistics = catchAsyncError(async (req, res, next) => {
   const transactions = await transactionService.getStatistics(id, type);
   return res.status(201).json(transactions);
 });
+
+const downloadTransactions = catchAsyncError(async (req, res, next) => {
+  const query = {
+    ...req.query,
+    all: true,
+  };
+  const data = await transactionService.getAllTransactions(query);
+  if (!data.transactions || !Array.isArray(data.transactions)) {
+    return next(new AppError("Transactions not found", 404));
+  }
+  const columns = [
+    { header: "Room", width: 25 },
+    { header: "Description", width: 30 },
+    { header: "Amount", width: 25 },
+    { header: "Category", width: 25 },
+    { header: "User_transactions", width: 40 },
+    { header: "", width: 20 },
+    { header: "Date", width: 30 },
+  ];
+  const rowTitle = ["", "", "", "", "User", "Amount", ""];
+  const file = await generateExcel({
+    rows: data.transactions,
+    columns,
+    rowTitle,
+    sheetName: "Transaction Report",
+    customLayout: true,
+    fillWorksheetRows: transactionService.fillWorksheetRows,
+  });
+
+  res.download(file, (err) => {
+    if (err) {
+      return next(new AppError("File not found", 404));
+    }
+  });
+});
 module.exports = {
   getAllTransactions,
   createTransaction,
@@ -84,4 +120,5 @@ module.exports = {
   updateTransaction,
   deleteTransaction,
   getStatistics,
+  downloadTransactions,
 };

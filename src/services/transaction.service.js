@@ -6,6 +6,14 @@ const dayjs = require("dayjs");
 const timezone = require("dayjs/plugin/timezone");
 dayjs.extend(timezone);
 const getAllTransactions = async (queryParams) => {
+  if (queryParams.all) {
+    const transactions = await prisma.transaction.findMany({
+      include: {
+        userTransactions: true,
+      },
+    });
+    return { transactions };
+  }
   const { where, orderBy, pagination } = apiFeature({
     queryParams,
     searchableFields: ["description"],
@@ -18,6 +26,9 @@ const getAllTransactions = async (queryParams) => {
       where,
       orderBy,
       ...pagination,
+      include: {
+        userTransactions: true,
+      },
     }),
     prisma.transaction.count({ where }),
   ]);
@@ -220,7 +231,71 @@ const getStatistics = async (id, type) => {
     totalIncome,
   };
 };
+const getEmailByUserId = async (userId) => {
+  if (!userId) return {};
+  const result = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  });
+  return {
+    email: result?.email || "",
+  };
+};
+const getCategoryById = async (categoryId) => {
+  if (!categoryId) return {};
+  const result = await prisma.category.findUnique({
+    where: { id: categoryId },
+    select: { name: true },
+  });
+  return {
+    name: result?.name || "",
+  };
+};
+const getRoomById = async (roomId) => {
+  if (!roomId) return {};
+  const result = await prisma.room.findUnique({
+    where: { id: roomId },
+    select: { name: true },
+  });
+  return {
+    name: result?.name || "",
+  };
+};
 
+const fillWorksheetRows = async (worksheet, data, currentRow = 3) => {
+  for (const transaction of data) {
+    const usersTransactions = transaction.userTransactions || [];
+    const rowspan = usersTransactions.length || 1;
+    const category = await getCategoryById(transaction.categoryId);
+    const room = transaction.roomId
+      ? await getRoomById(transaction.roomId)
+      : "";
+    for (let i = 0; i < rowspan; i++) {
+      const user = usersTransactions[i] || {};
+      const row = worksheet.getRow(currentRow + i);
+
+      if (i === 0) {
+        row.getCell(1).value = room ? room.name : "";
+        row.getCell(2).value = transaction.description;
+        row.getCell(3).value = Number(transaction.amount);
+        row.getCell(4).value = category.name;
+        row.getCell(7).value = transaction.date.toLocaleString("vi-VN");
+      }
+      const detailUser = await getEmailByUserId(user.userId);
+      row.getCell(5).value = detailUser.email || "";
+      row.getCell(6).value = Number(user.amount) || "";
+    }
+
+    if (rowspan > 1) {
+      worksheet.mergeCells(`A${currentRow}:A${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`B${currentRow}:B${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`C${currentRow}:C${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`D${currentRow}:D${currentRow + rowspan - 1}`);
+      worksheet.mergeCells(`G${currentRow}:G${currentRow + rowspan - 1}`);
+    }
+    currentRow += rowspan;
+  }
+};
 module.exports = {
   getAllTransactions,
   getTransaction,
@@ -228,4 +303,5 @@ module.exports = {
   updateTransaction,
   deleteTransaction,
   getStatistics,
+  fillWorksheetRows,
 };

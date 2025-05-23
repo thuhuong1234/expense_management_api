@@ -169,6 +169,7 @@ const removeUserFromRoom = async (roomId, memberId, userId) => {
   return updateRoomQuality(Number(roomId));
 };
 const getEmailByUserId = async (userId) => {
+  if (!userId) return {};
   const result = await prisma.user.findUnique({
     where: { id: userId },
     select: { email: true },
@@ -178,6 +179,7 @@ const getEmailByUserId = async (userId) => {
   };
 };
 const getCategoryById = async (categoryId) => {
+  if (!categoryId) return {};
   const result = await prisma.category.findUnique({
     where: { id: categoryId },
     select: { name: true },

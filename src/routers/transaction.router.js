@@ -6,7 +6,7 @@ const router = require("express").Router();
 router.route("/").get(transactionController.getAllTransactions);
 
 router.use(authMiddleware);
-
+router.route("/download").get(transactionController.downloadTransactions);
 router.route("/statistics").get(transactionController.getStatistics);
 router.route("/").post(transactionController.createTransaction);
 router.route("/:id").get(transactionController.getTransaction);
