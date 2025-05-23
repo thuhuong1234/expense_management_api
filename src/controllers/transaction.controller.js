@@ -49,7 +49,7 @@ const updateTransaction = catchAsyncError(async (req, res, next) => {
   }
 
   const updatedTransaction = await transactionService.updateTransaction(
-    id,
+    +id,
     req.body
   );
   return res.status(201).json(updatedTransaction);
@@ -57,12 +57,12 @@ const updateTransaction = catchAsyncError(async (req, res, next) => {
 
 const deleteTransaction = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const transaction = await transactionService.getTransaction(id);
+  const transaction = await transactionService.getTransaction(+id);
   if (!transaction) {
     return next(new AppError("Transaction not found", 404));
   }
 
-  const deletedTransaction = await transactionService.deleteTransaction(id);
+  const deletedTransaction = await transactionService.deleteTransaction(+id);
   return res.status(201).json(deletedTransaction);
 });
 const getStatistics = catchAsyncError(async (req, res, next) => {

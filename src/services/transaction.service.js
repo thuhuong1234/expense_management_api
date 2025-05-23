@@ -137,7 +137,7 @@ const getTransaction = async (id) => {
     },
     include: {
       userTransactions: {
-        select: {
+        include: {
           user: true,
         },
       },
@@ -145,20 +145,76 @@ const getTransaction = async (id) => {
   });
 };
 
-const updateTransaction = (id, data) => {
+const updateTransaction = async (id, data) => {
+  const { userTransactions, ...rest } = data;
+
+  const result = await prisma.transaction.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      userTransactions: true,
+    },
+  });
+  if (userTransactions) {
+    await prisma.userTransaction.deleteMany({
+      where: {
+        transactionId: Number(id),
+      },
+    });
+    rest.amount = rest.amount ? Number(rest.amount) : result.amount;
+    const defaultAmount = Math.floor(rest.amount / userTransactions.length);
+    const userTransactionData = userTransactions.map((user) => ({
+      userId: user.userId,
+      amount: user.amount ? Number(user.amount) : defaultAmount,
+      dueDate: rest.dueDate || null,
+    }));
+    const totalAmount = userTransactionData.reduce(
+      (sum, ut) => sum + ut.amount,
+      0
+    );
+
+    if (totalAmount > rest.amount) {
+      throw new AppError("Amount exceeds total available.", 400);
+    }
+
+    const transaction = prisma.transaction.update({
+      where: {
+        id,
+      },
+      data: {
+        ...rest,
+        userTransactions: {
+          create: userTransactionData,
+        },
+      },
+      include: {
+        userTransactions: {
+          include: { user: true },
+        },
+      },
+    });
+
+    return transaction;
+  }
   const transaction = prisma.transaction.update({
     where: {
-      id: Number(id),
+      id,
     },
     data,
   });
   return transaction;
 };
 
-const deleteTransaction = (id) => {
-  const transaction = prisma.transaction.delete({
+const deleteTransaction = async (id) => {
+  await prisma.userTransaction.deleteMany({
     where: {
-      id: Number(id),
+      transactionId: id,
+    },
+  });
+  const transaction = await prisma.transaction.delete({
+    where: {
+      id,
     },
   });
   return transaction;
