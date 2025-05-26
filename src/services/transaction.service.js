@@ -83,9 +83,9 @@ const createTransaction = async (data) => {
     amount,
     userId,
     fundId,
+    date,
     ...transactionData
   } = data;
-
   await validateCategory(categoryId);
   await validateRoomAccess(roomId, userId);
 
@@ -106,10 +106,10 @@ const createTransaction = async (data) => {
       amount,
       userId,
       fundId: fund.id,
+      date,
       ...transactionData,
     },
   });
-
   const userTransactionData = userTransactions.map((pid) => ({
     userId: pid,
     transactionId: newTransaction.id,
@@ -146,7 +146,7 @@ const getTransaction = async (id) => {
 };
 
 const updateTransaction = async (id, data) => {
-  const { userTransactions, ...rest } = data;
+  const { userTransactions, date, ...rest } = data;
 
   const result = await prisma.transaction.findUnique({
     where: {
@@ -163,6 +163,8 @@ const updateTransaction = async (id, data) => {
       },
     });
     rest.amount = rest.amount ? Number(rest.amount) : result.amount;
+    rest.date = date ? new Date(date).toISOString() : result.date;
+
     const defaultAmount = Math.floor(rest.amount / userTransactions.length);
     const userTransactionData = userTransactions.map((user) => ({
       userId: user.userId,
@@ -201,7 +203,10 @@ const updateTransaction = async (id, data) => {
     where: {
       id,
     },
-    data,
+    data: {
+      date: date ? new Date(date).toISOString() : result.date,
+      ...rest,
+    },
   });
   return transaction;
 };

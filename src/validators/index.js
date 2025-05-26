@@ -68,6 +68,7 @@ module.exports = {
     roomId: Joi.number().required().optional(),
     userTransactions: Joi.array().items(Joi.number()).optional(),
     dueDate: Joi.date().optional(),
+    date: Joi.date().optional(),
   }),
   [UPDATE_TRANSACTION_API_KEY]: Joi.object({
     description: Joi.string().optional(),
@@ -76,6 +77,7 @@ module.exports = {
     roomId: Joi.number().optional(),
     userTransactions: Joi.array().items(Joi.number()).optional(),
     dueDate: Joi.date().optional(),
+    date: Joi.date().optional(),
   }),
   [CREATE_FUND_API_KEY]: Joi.object({
     balance: Joi.number().required(),
