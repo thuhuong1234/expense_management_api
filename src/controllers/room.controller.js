@@ -46,11 +46,16 @@ const deleteRoom = catchAsyncError(async (req, res, next) => {
 
 const addUser = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const memberId = req.body;
+  const memberIds = req.body;
   const userId = req.user.id;
 
-  const result = await roomService.addUserToRoom(id, memberId.userId, userId);
-  const updateRoomQuality = await roomService.updateRoomQuality(result.roomId);
+  const result = await roomService.addUserToRoom(
+    +id,
+    memberIds.userId,
+    +userId
+  );
+
+  const updateRoomQuality = await roomService.updateRoomQuality(+id);
   return res.status(201).json(updateRoomQuality);
 });
 
@@ -60,9 +65,9 @@ const removeUser = catchAsyncError(async (req, res, next) => {
   const userId = req.user.id;
 
   const result = await roomService.removeUserFromRoom(
-    id,
-    memberId.userId,
-    userId
+    +id,
+    +memberId.userId,
+    +userId
   );
   return res.status(201).json(result);
 });

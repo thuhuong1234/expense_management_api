@@ -120,9 +120,9 @@ const deleteRoom = async (roomId, userId) => {
     message: "Room deleted successfully",
   };
 };
-const addUserToRoom = async (roomId, memberId, userId) => {
+const addUserToRoom = async (roomId, memberIds, userId) => {
   const userRoom = await prisma.userRoom.findFirst({
-    where: { roomId: Number(roomId), userId },
+    where: { roomId, userId },
   });
   if (!userRoom) {
     throw new AppError("Room is invalid ", 404);
@@ -131,31 +131,40 @@ const addUserToRoom = async (roomId, memberId, userId) => {
     throw new AppError("You do not have permission ", 403);
   }
 
-  const existUser = await prisma.user.findUnique({
-    where: { id: memberId },
+  const existingUsers = await prisma.user.findMany({
+    where: { id: { in: memberIds } },
   });
-  if (!existUser) {
-    throw new AppError("Member not found", 404);
+  const userIds = existingUsers.map((user) => user.id);
+  const isNotExistUser = memberIds.filter((id) => !userIds.includes(id));
+  if (isNotExistUser.length > 0) {
+    throw new AppError(`Member not found : ${isNotExistUser.join(", ")}`, 404); //", 404);
   }
 
-  const existingMember = await prisma.userRoom.findFirst({
-    where: { roomId: Number(roomId), userId: Number(memberId) },
+  const existingMembers = await prisma.userRoom.findMany({
+    where: { roomId, userId: { in: userIds } },
   });
-
-  if (existingMember) {
-    throw new AppError("Member already in the room", 400);
+  const alreadyMemberIds = existingMembers.map((m) => m.userId);
+  if (alreadyMemberIds.length > 0) {
+    throw new AppError(
+      `Members already in the room: ${alreadyMemberIds.join(", ")}`,
+      400
+    );
   }
-  return await prisma.userRoom.create({
-    data: {
-      roomId: Number(roomId),
-      userId: Number(memberId),
+  const addedUsers = memberIds
+    .filter((id) => !alreadyMemberIds.includes(id))
+    .map((id) => ({
+      roomId,
+      userId: +id,
       role: Role.Member,
-    },
+    }));
+
+  return await prisma.userRoom.createMany({
+    data: addedUsers,
   });
 };
 const removeUserFromRoom = async (roomId, memberId, userId) => {
   const userRoom = await prisma.userRoom.findFirst({
-    where: { roomId: Number(roomId), userId },
+    where: { roomId, userId },
   });
   if (!userRoom) {
     throw new AppError("Room is invalid ", 404);
@@ -165,7 +174,7 @@ const removeUserFromRoom = async (roomId, memberId, userId) => {
   }
 
   const memberToRemove = await prisma.userRoom.findFirst({
-    where: { roomId: Number(roomId), userId: Number(memberId) },
+    where: { roomId, userId: memberId },
   });
   if (!memberToRemove) {
     throw new AppError("There is no user in this room.", 404);
@@ -178,9 +187,9 @@ const removeUserFromRoom = async (roomId, memberId, userId) => {
   }
 
   await prisma.userRoom.deleteMany({
-    where: { roomId: Number(roomId), userId: Number(memberId) },
+    where: { roomId, userId: memberId },
   });
-  return updateRoomQuality(Number(roomId));
+  return updateRoomQuality(roomId);
 };
 const getEmailByUserId = async (userId) => {
   if (!userId) return {};
