@@ -4,7 +4,9 @@ const AppError = require("../utils/appError");
 const generateExcel = require("../utils/downloadFile");
 
 const getAllRooms = catchAsyncError(async (req, res, next) => {
-  const rooms = await roomService.getAllRooms(req.query);
+  const userId = req.user?.id;
+  const isAdmin = req.user?.isAdmin;
+  const rooms = await roomService.getAllRooms(req.query, userId, isAdmin);
   return res.status(201).json(rooms);
 });
 

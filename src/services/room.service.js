@@ -3,7 +3,7 @@ const prisma = require("../prisma");
 const AppError = require("../utils/appError");
 const apiFeature = require("../utils/apiFeature");
 const { getTimeRange } = require("../utils/timeRange");
-const getAllRooms = async (queryParams) => {
+const getAllRooms = async (queryParams, userId, isAdmin = false) => {
   if (queryParams.all) {
     const rooms = await prisma.room.findMany({
       include: {
@@ -18,13 +18,26 @@ const getAllRooms = async (queryParams) => {
     });
     return { rooms };
   }
-  const { where, orderBy, pagination } = apiFeature({
+  const {
+    where: baseWhere,
+    orderBy,
+    pagination,
+  } = apiFeature({
     queryParams,
     searchableFields: ["name"],
     defaultSort: {
       createdAt: "desc",
     },
   });
+  let where = { ...baseWhere };
+  if (!isAdmin) {
+    where.userRooms = {
+      some: {
+        userId: +userId,
+        ...(where.userRooms?.some || {}),
+      },
+    };
+  }
   const [rooms, total] = await Promise.all([
     prisma.room.findMany({
       where,

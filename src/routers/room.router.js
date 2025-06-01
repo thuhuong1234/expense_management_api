@@ -5,10 +5,8 @@ const roleMiddleware = require("../middlewares/role.middleware");
 const roomRouter = express.Router();
 
 const roomController = require("../controllers/room.controller");
-
-roomRouter.route("/").get(roomController.getAllRooms);
-
 roomRouter.use(authMiddleware);
+roomRouter.route("/").get(roomController.getAllRooms);
 roomRouter.route("/download").get(roomController.downloadRooms);
 roomRouter
   .route("/statistics/users-by-room")
