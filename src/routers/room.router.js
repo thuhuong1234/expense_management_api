@@ -10,6 +10,9 @@ roomRouter.route("/").get(roomController.getAllRooms);
 
 roomRouter.use(authMiddleware);
 roomRouter.route("/download").get(roomController.downloadRooms);
+roomRouter
+  .route("/statistics/users-by-room")
+  .get(roomController.getCountUserInRoom);
 roomRouter.route("/download-detail/:id").get(roomController.downloadDetailRoom);
 roomRouter.route("/").post(roomController.createRoom);
 roomRouter.route("/:id").get(roomController.getRoom);

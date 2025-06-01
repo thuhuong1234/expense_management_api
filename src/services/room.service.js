@@ -2,6 +2,7 @@ const { Role } = require("@prisma/client");
 const prisma = require("../prisma");
 const AppError = require("../utils/appError");
 const apiFeature = require("../utils/apiFeature");
+const { getTimeRange } = require("../utils/timeRange");
 const getAllRooms = async (queryParams) => {
   if (queryParams.all) {
     const rooms = await prisma.room.findMany({
@@ -278,6 +279,56 @@ const fillWorksheetDetailRows = async (worksheet, data, currentRow = 3) => {
     currentRow += rowspan;
   }
 };
+const getCountUserInRoom = async ({ roomId, type = "month" }) => {
+  const { from, to } = getTimeRange(type);
+  const userTransactions = await prisma.userTransaction.findMany({
+    where: {
+      roomId: Number(roomId),
+      transaction: {
+        date: {
+          gte: from,
+          lte: to,
+        },
+      },
+    },
+    include: {
+      user: true,
+      transaction: {
+        include: {
+          category: true,
+        },
+      },
+    },
+  });
+
+  const result = [];
+
+  userTransactions.forEach((utx) => {
+    const userId = utx.userId;
+    const user = utx.user;
+    const categoryType = utx.transaction.category?.categoryType;
+    const amount = parseFloat(utx.amount);
+    if (!result[userId]) {
+      result[userId] = {
+        userId,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        totalIncome: 0,
+        totalExpense: 0,
+      };
+    }
+    if (categoryType === "Income") result[userId].totalIncome += amount;
+    else if (categoryType === "Expense") result[userId].totalExpense += amount;
+  });
+  return {
+    roomId,
+    type,
+    from,
+    to,
+    data: Object.values(result),
+  };
+};
 module.exports = {
   getAllRooms,
   createRoom,
@@ -289,4 +340,5 @@ module.exports = {
   updateRoomQuality,
   fillWorksheetRows,
   fillWorksheetDetailRows,
+  getCountUserInRoom,
 };

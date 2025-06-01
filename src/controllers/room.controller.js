@@ -134,6 +134,20 @@ const downloadDetailRoom = catchAsyncError(async (req, res, next) => {
     }
   });
 });
+
+const getCountUserInRoom = catchAsyncError(async (req, res, next) => {
+  const { roomId, type } = req.query;
+  if (!roomId) {
+    return res.status(400).json({ message: "Missing roomId" });
+  }
+  const result = await roomService.getCountUserInRoom({ roomId, type });
+  res.status(200).json({
+    status: "success",
+    ...result,
+  });
+  return res.status(201).json(result);
+});
+
 module.exports = {
   getAllRooms,
   createRoom,
@@ -144,4 +158,5 @@ module.exports = {
   removeUser,
   downloadRooms,
   downloadDetailRoom,
+  getCountUserInRoom,
 };
