@@ -25,7 +25,7 @@ const apiFeature = ({
   let orderBy = defaultSort;
   if (sort) {
     const [field, order = "asc"] = sort.split(":");
-    orderBy[field] = order;
+    orderBy[field] = order.toLowerCase();
   }
   return {
     pagination: { skip, take },

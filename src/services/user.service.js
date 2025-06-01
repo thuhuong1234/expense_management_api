@@ -59,11 +59,37 @@ const updateUser = async (id, data) => {
 const deleteUser = async (id) => {
   return await prisma.user.delete({ where: { id } });
 };
+const getCountByUserId = async (userId) => {
+  const transactions = await prisma.userTransaction.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      transaction: {
+        include: {
+          category: true,
+          room: true,
+          fund: true,
+        },
+      },
+    },
+  });
+  let totalIncome = 0;
+  let totalExpense = 0;
+  transactions.forEach((transaction) => {
+    const amount = Number(transaction.amount);
+    const type = transaction.transaction.category?.categoryType;
+    if (type === "Income") totalIncome += amount;
+    else if (type === "Expense") totalExpense += amount;
+  });
 
+  return { totalIncome, totalExpense };
+};
 module.exports = {
   createUser,
   getUser,
   getAllUsers,
   updateUser,
   deleteUser,
+  getCountByUserId,
 };

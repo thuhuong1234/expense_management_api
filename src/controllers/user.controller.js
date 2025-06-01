@@ -86,6 +86,12 @@ const downloadListUser = catchAsyncError(async (req, res, next) => {
     }
   });
 });
+const getCountByUserId = catchAsyncError(async (req, res, next) => {
+  const userId = req.user.id;
+  const count = await userService.getCountByUserId(+userId);
+  return res.status(201).json(count);
+});
+
 module.exports = {
   createUser,
   getAllUsers,
@@ -93,4 +99,5 @@ module.exports = {
   updateUser,
   deleteUser,
   downloadListUser,
+  getCountByUserId,
 };
