@@ -81,6 +81,15 @@ const createRoom = async (data, userId) => {
     },
   });
 
+  await prisma.fund.create({
+    data: {
+      name: `Quỹ phòng #${newRoom.id}`,
+      description: "Quỹ mặc định khi tạo phòng",
+      roomId: newRoom.id,
+      userId,
+      balance: 0,
+    },
+  });
   return newRoom;
 };
 const updateRoomQuality = async (roomId) => {

@@ -11,6 +11,7 @@ const getUser = async (id) => {
     where: { id },
     include: {
       rooms: true,
+      fund: true,
       userTransactions: {
         include: {
           transaction: true,
